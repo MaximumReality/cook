@@ -52,14 +52,20 @@
         }
 
         .chef-thumb {
-            width: 95px; /* Restored larger, confident size */
-            height: 95px;
-            border-radius: 50%;
-            border: 3px solid var(--neon-cyan);
-            box-shadow: 0 0 20px var(--neon-cyan);
-            /* Removed object-fit to prevent squishing if image is already square */
-            animation: pulse-glow 2s infinite ease-in-out;
-        }
+    width: 110px; /* Slightly larger for that bold presence */
+    height: 110px;
+    border-radius: 50%;
+    border: 3px solid var(--neon-cyan);
+    box-shadow: 0 0 20px var(--neon-cyan);
+    
+    /* THE MAGIC: This zooms in on the face and crops the body */
+    object-fit: cover; 
+    object-position: 50% 15%; /* Moves the 'camera' up to focus on his face/hat */
+    
+    background: #111;
+    animation: pulse-glow 2s infinite ease-in-out;
+}
+
 
         .home-link {
             text-decoration: none;
@@ -136,18 +142,18 @@
         <h1>HARIRA QUEST</h1>
         
         <div class="mission-box">
-            <div class="log-text">
-                <strong style="color: white;">[LOG]:</strong> SYSTEM ONLINE <br>
-                <strong style="color: white;">[INTEL]:</strong> Mochkil is out of lentils. <br>
-                <strong style="color: white;">[AZUL]:</strong> 99% flavor deficit. <br><br>
-                <strong style="color: white;">[OBJECTIVES]:</strong><br>
-                • SNATCH: The Moving Ingredients <br>
-                • DODGE: The Roaches 🪳 <br>
-                • STIR: The Quantum Pot <br>
-                • SPICE: Add Flavor Enhancement <br>
-                • SERVE: Feed the Hacker Cats
-            </div>
-        </div>
+    <div class="log-text">
+        <strong style="color: white;">[LOG]:</strong> SYSTEM ONLINE <br>
+        <strong style="color: white;">[INTEL]:</strong> Mochkil is out of lentils. <br>
+        <strong style="color: white;">[AZUL]:</strong> 99% flavor deficit. <br><br>
+        <strong style="color: white;">[OBJECTIVES]:</strong><br>
+        • SNATCH: The Ingredients <br>
+        • DODGE: The Roaches 🪳 <br>
+        • STIR: The Quantum Pot <br>
+        • SPICE: Add Flavor Enhancement <br>
+        • SERVE: Feed the Hacker Cats
+    </div>
+</div>
 
         <button class="begin-btn" onclick="startGame()">BEGIN MISSION</button>
     </div>
