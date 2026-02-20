@@ -25,23 +25,45 @@
             font-family: 'Courier New', monospace;
             display: flex;
             flex-direction: column;
-            justify-content: center; /* Perfect vertical centering */
+            justify-content: center;
             align-items: center; 
             height: 100vh;
             width: 100vw;
             overflow: hidden;
             box-sizing: border-box;
-            /* Protects against the notch and Safari bar */
             padding: env(safe-area-inset-top) 20px env(safe-area-inset-bottom) 20px;
         }
 
+        /* --- THE LOADING SHIELD STYLE --- */
+        #pantry-loader {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 10000; /* Stays on top of everything */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            transition: opacity 0.8s ease;
+        }
+
+        .loader-img {
+            width: 85%;
+            max-width: 350px;
+            border: 2px solid var(--neon-cyan);
+            box-shadow: 0 0 20px var(--neon-cyan);
+            border-radius: 15px;
+        }
+
+        /* --- GAME LAUNCHER STYLE --- */
         #game-launcher {
             display: flex;
             flex-direction: column;
             align-items: center;
             width: 100%;
             max-width: 360px;
-            gap: 25px; /* Spacing between the "floated" elements */
+            gap: 25px;
         }
 
         #header-nav {
@@ -52,20 +74,16 @@
         }
 
         .chef-thumb {
-    width: 110px; /* Slightly larger for that bold presence */
-    height: 110px;
-    border-radius: 50%;
-    border: 3px solid var(--neon-cyan);
-    box-shadow: 0 0 20px var(--neon-cyan);
-    
-    /* THE MAGIC: This zooms in on the face and crops the body */
-    object-fit: cover; 
-    object-position: 50% 15%; /* Moves the 'camera' up to focus on his face/hat */
-    
-    background: #111;
-    animation: pulse-glow 2s infinite ease-in-out;
-}
-
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            border: 3px solid var(--neon-cyan);
+            box-shadow: 0 0 20px var(--neon-cyan);
+            object-fit: cover; 
+            object-position: 50% 15%; 
+            background: #111;
+            animation: pulse-glow 2s infinite ease-in-out;
+        }
 
         .home-link {
             text-decoration: none;
@@ -121,7 +139,6 @@
             50% { box-shadow: 0 0 25px var(--neon-cyan); transform: scale(1.05); }
         }
 
-        /* Adjusts only if the Safari toolbar takes up too much room */
         @media screen and (max-height: 720px) {
             #game-launcher { gap: 15px; }
             .chef-thumb { width: 80px; height: 80px; }
@@ -131,7 +148,13 @@
 </head>
 <body>
 
-       <div id="game-launcher">
+    <div id="pantry-loader">
+        <img src="azul-loading.PNG" class="loader-img" alt="Azul Loading">
+        <h2 style="color:var(--neon-pink); margin-top:25px; letter-spacing:2px;">STOCKING PANTRY...</h2>
+        <p style="color:var(--neon-cyan); font-size:0.8rem;">AZUL is syncing quantum assets</p>
+    </div>
+
+    <div id="game-launcher">
         <div id="header-nav">
             <img src="mochkil-harira1.PNG" class="chef-thumb" alt="Chef Mochkil">
             <a href="https://MaximumReality.xyz" class="home-link">
@@ -142,18 +165,18 @@
         <h1>HARIRA QUEST</h1>
         
         <div class="mission-box">
-    <div class="log-text">
-        <strong style="color: white;">[LOG]:</strong> SYSTEM ONLINE <br>
-        <strong style="color: white;">[INTEL]:</strong> Mochkil is out of lentils. <br>
-        <strong style="color: white;">[AZUL]:</strong> 99% flavor deficit. <br><br>
-        <strong style="color: white;">[OBJECTIVES]:</strong><br>
-        • SNATCH: The Ingredients <br>
-        • DODGE: The Roaches 🪳 <br>
-        • STIR: The Quantum Pot <br>
-        • SPICE: Add Flavor Enhancement <br>
-        • SERVE: Feed the Hacker Cats
-    </div>
-</div>
+            <div class="log-text">
+                <strong style="color: white;">[LOG]:</strong> SYSTEM ONLINE <br>
+                <strong style="color: white;">[INTEL]:</strong> Mochkil is out of lentils. <br>
+                <strong style="color: white;">[AZUL]:</strong> 99% flavor deficit. <br><br>
+                <strong style="color: white;">[OBJECTIVES]:</strong><br>
+                • SNATCH: The Ingredients <br>
+                • DODGE: The Roaches 🪳 <br>
+                • STIR: The Quantum Pot <br>
+                • SPICE: Add Flavor Enhancement <br>
+                • SERVE: Feed the Hacker Cats
+            </div>
+        </div>
 
         <button class="begin-btn" onclick="startGame()">BEGIN MISSION</button>
     </div>
@@ -163,33 +186,44 @@
             if (navigator.vibrate) navigator.vibrate(60);
             window.location.href = 'stage1.html';
         }
-    </script>
-    <script>
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.ready.then(registration => {
-            // Listen for updates from the Service Worker
-            navigator.serviceWorker.addEventListener('message', event => {
-                if (event.data && event.data.type === 'CACHE_COMPLETE') {
-                    showPantryStatus();
+
+        function hideLoader() {
+            const loader = document.getElementById('pantry-loader');
+            if (loader) {
+                loader.style.opacity = "0";
+                setTimeout(() => loader.remove(), 800);
+            }
+        }
+
+        if ('serviceWorker' in navigator) {
+            // 1. If SW is already active and controlling the page, hide loader after a cool-down
+            navigator.serviceWorker.ready.then(registration => {
+                if (registration.active) {
+                    setTimeout(hideLoader, 2000); 
                 }
             });
-        });
-    }
 
-    function showPantryStatus() {
-        const toast = document.createElement('div');
-        toast.style.cssText = `
-            position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
-            background: var(--neon-cyan); color: #000; padding: 10px 20px;
-            border-radius: 50px; font-family: monospace; font-weight: bold;
-            z-index: 1000; box-shadow: 0 0 15px var(--neon-cyan);
-            animation: float-up 0.5s ease-out;
-        `;
-        toast.innerText = "AZUL: PANTRY STOCKED ✅";
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
-    }
-</script>
+            // 2. Listen for the initial "Pantry Stocked" message
+            navigator.serviceWorker.addEventListener('message', event => {
+                if (event.data && event.data.type === 'CACHE_COMPLETE') {
+                    hideLoader();
+                    showPantryToast();
+                }
+            });
+        }
 
+        function showPantryToast() {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
+                background: var(--neon-cyan); color: #000; padding: 10px 20px;
+                border-radius: 50px; font-family: monospace; font-weight: bold;
+                z-index: 1000; box-shadow: 0 0 15px var(--neon-cyan);
+            `;
+            toast.innerText = "AZUL: PANTRY STOCKED ✅";
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+    </script>
 </body>
 </html>
