@@ -122,58 +122,66 @@
     music.loop = true;
     music.preload = 'auto';
 
-    // Unlock audio on the first tap (which also drops the first garlic!)
     const startMusic = () => {
-        music.play().catch(e => console.log("Audio waiting for chef..."));
+        music.play().catch(e => console.log("Audio waiting..."));
         window.removeEventListener('touchstart', startMusic);
     };
     window.addEventListener('touchstart', startMusic);
 
-    /* UPDATED DROP LOGIC */
+    /* GAME VARIABLES */
     let caught = 0;
     const claw = document.getElementById('garlic-claw');
     const bowl = document.getElementById('target-bowl');
     const scoreText = document.getElementById('score');
     const nextBtn = document.getElementById('next-btn');
 
+    /* RIPPLE GENERATOR - Moved outside for better performance */
+    function createRipple() {
+        const ripple = document.createElement('div');
+        ripple.className = 'ripple';
+        document.body.appendChild(ripple);
+        ripple.addEventListener('animationend', () => ripple.remove());
+    }
+
+    /* DROP LOGIC */
     function dropGarlic() {
-    if (claw.classList.contains('dropping')) return;
+        if (claw.classList.contains('dropping')) return;
 
-    const currentLeft = window.getComputedStyle(claw).left;
-    claw.style.left = currentLeft;
-    claw.classList.add('dropping');
-    
-    const clawRect = claw.getBoundingClientRect();
-    const bowlRect = bowl.getBoundingClientRect();
-
-    setTimeout(() => {
-        const finalLeft = clawRect.left + (clawRect.width / 2);
+        // Capture horizontal position and trigger drop
+        const currentLeft = window.getComputedStyle(claw).left;
+        claw.style.left = currentLeft;
+        claw.classList.add('dropping');
         
-        // Hit Detection
-        if (finalLeft > bowlRect.left && finalLeft < bowlRect.right) {
-            caught++;
-            scoreText.innerText = caught;
-            if (navigator.vibrate) navigator.vibrate([15, 10, 15]);
-        }
+        const clawRect = claw.getBoundingClientRect();
+        const bowlRect = bowl.getBoundingClientRect();
 
-        if (caught >= 3) {
-            nextBtn.style.display = 'block';
-            claw.style.display = 'none';
-        } else {
-            // Instant Reset
-            claw.style.transition = "none"; // Remove transition for instant reset
-            claw.classList.remove('dropping');
-            claw.style.top = "0px";
-            claw.style.opacity = "1";
+        setTimeout(() => {
+            const finalLeft = clawRect.left + (clawRect.width / 2);
             
-            // Force a reflow to restart the horizontal animation
-            void claw.offsetWidth; 
-            claw.style.transition = ""; 
-        }
-    }, 600);
-}
+            // Hit Detection (Only happens once now!)
+            if (finalLeft > bowlRect.left && finalLeft < bowlRect.right) {
+                caught++;
+                scoreText.innerText = caught;
+                createRipple(); 
+                if (navigator.vibrate) navigator.vibrate([15, 10, 15]);
+            }
 
+            if (caught >= 3) {
+                nextBtn.style.display = 'block';
+                claw.style.display = 'none';
+            } else {
+                // Instant Reset logic
+                claw.style.transition = "none";
+                claw.classList.remove('dropping');
+                claw.style.top = "0px";
+                claw.style.opacity = "1";
+                void claw.offsetWidth; // Reflow
+                claw.style.transition = ""; 
+            }
+        }, 600);
+    }
 </script>
+
 
 </body>
 </html>
