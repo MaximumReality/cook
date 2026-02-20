@@ -1,4 +1,96 @@
-Stage 3: Prep (The Spice & Garnish)
-• The Logic: Precise Tap/Placement.
-• The Gameplay: A bowl of Bessara is on the screen. Small icons of olive oil, cumin, and paprika float by.
-• Maximum Reality Touch: You have to tap them at the perfect time to "land" them in the bowl. Land a perfect drop of olive oil, and Azul pops up with a "Molecular Perfection" rating.
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>The Spice | Maximum Reality</title>
+    <style>
+        :root { --neon-green: #39FF14; --neon-orange: #FFAC1C; }
+        body { margin: 0; background: #000; overflow: hidden; font-family: 'Courier New', monospace; color: white; text-align: center; }
+        
+        #ui { position: absolute; top: 60px; width: 100%; z-index: 10; }
+        
+        #bowl {
+            position: absolute; bottom: 100px; left: 50%;
+            transform: translateX(-50%); width: 200px; height: 120px;
+            background: #6b4e31; border: 5px solid #444; border-radius: 0 0 100px 100px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+
+        /* Moving Spice Slider */
+        #slider-track {
+            position: absolute; top: 200px; left: 10%; width: 80%;
+            height: 10px; background: #222; border-radius: 5px;
+        }
+        #spice-icon {
+            position: absolute; top: -15px; left: 0; font-size: 40px;
+            transition: none; pointer-events: none;
+        }
+
+        #azul-rating {
+            position: absolute; top: 350px; left: 50%; transform: translateX(-50%);
+            display: none; color: var(--neon-green); font-weight: bold;
+            text-shadow: 0 0 10px var(--neon-green);
+        }
+        
+        #finish-btn {
+            display: none; position: absolute; bottom: 50px; left: 50%;
+            transform: translateX(-50%); padding: 20px; background: #FF00FF;
+            border-radius: 15px; border: none; color: white; font-weight: bold;
+        }
+    </style>
+</head>
+<body onclick="dropSpice()">
+
+<div id="ui">
+    <h2 style="color:var(--neon-orange)">STAGE 3: THE SPICE</h2>
+    <p>TAP TO DROP THE GARNISH</p>
+</div>
+
+<div id="slider-track">
+    <div id="spice-icon">🫒</div> </div>
+
+<div id="azul-rating">MOLECULAR PERFECTION!</div>
+<div id="bowl"></div>
+
+<button id="finish-btn" onclick="window.location.href='stage4.html'">SERVE THE CROWD</button>
+
+<script>
+    const spice = document.getElementById('spice-icon');
+    const rating = document.getElementById('azul-rating');
+    const finishBtn = document.getElementById('finish-btn');
+    
+    let pos = 0;
+    let direction = 2;
+    let active = true;
+
+    function animateSlider() {
+        if (!active) return;
+        pos += direction;
+        if (pos > 90 || pos < 0) direction *= -1;
+        spice.style.left = pos + '%';
+        requestAnimationFrame(animateSlider);
+    }
+
+    function dropSpice() {
+        if (!active) return;
+        active = false;
+        
+        // Check if the spice is in the middle (between 40% and 55%)
+        if (pos > 40 && pos < 55) {
+            rating.style.display = 'block';
+            spice.style.top = '400px'; // Animates drop
+            spice.style.transition = 'top 0.5s ease-in';
+            setTimeout(() => { finishBtn.style.display = 'block'; }, 600);
+        } else {
+            rating.innerText = "OFF BALANCE! TRY AGAIN";
+            rating.style.color = "red";
+            rating.style.display = 'block';
+            setTimeout(() => { active = true; rating.style.display = 'none'; animateSlider(); }, 1000);
+        }
+    }
+
+    animateSlider();
+</script>
+</body>
+</html>
