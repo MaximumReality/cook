@@ -1,4 +1,105 @@
-Stage 4: Serving (The Rush)
-• The Logic: Swipe/Flick.
-• The Gameplay: Customers (various cats/characters) slide in from the left. You have to flick the completed bowls to the correct character.
-• The Finale: Success triggers your Victory Video.
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>The Serve | Maximum Reality</title>
+    <style>
+        :root { --neon-pink: #FF00FF; --neon-cyan: #00FFFF; }
+        body { margin: 0; background: #000; overflow: hidden; font-family: 'Courier New', monospace; color: white; }
+        
+        #ui { position: absolute; top: 65px; width: 100%; text-align: center; z-index: 10; }
+        
+        /* The Customer (Target) */
+        #customer {
+            position: absolute; top: 150px; left: 50%;
+            transform: translateX(-50%); width: 120px; transition: left 2s linear;
+        }
+
+        /* The Bowl (Projectile) */
+        #bowl {
+            position: absolute; bottom: 50px; left: 50%;
+            transform: translateX(-50%); width: 80px; height: 50px;
+            background: #6b4e31; border: 3px solid var(--neon-cyan);
+            border-radius: 0 0 50px 50px; z-index: 5;
+        }
+
+        .served-count { font-size: 24px; color: var(--neon-pink); }
+    </style>
+</head>
+<body>
+
+<div id="ui">
+    <div style="color:var(--neon-cyan)">STAGE 4: THE SERVE</div>
+    <div class="served-count">SERVED: <span id="count">0</span>/5</div>
+</div>
+
+<img src="mochkil_happy.png" id="customer"> <div id="bowl"></div>
+
+<script>
+    let served = 0;
+    const bowl = document.getElementById('bowl');
+    const customer = document.getElementById('customer');
+    const countEl = document.getElementById('count');
+    
+    let startY, startTime;
+    let isFlying = false;
+
+    // Move the customer back and forth
+    function moveCustomer() {
+        let newPos = Math.random() * 70 + 15;
+        customer.style.left = newPos + '%';
+        setTimeout(moveCustomer, 2000);
+    }
+
+    window.addEventListener('touchstart', e => {
+        if (isFlying) return;
+        startY = e.touches[0].clientY;
+        startTime = Date.now();
+    });
+
+    window.addEventListener('touchend', e => {
+        if (isFlying) return;
+        let endY = e.changedTouches[0].clientY;
+        let duration = Date.now() - startTime;
+        let distance = startY - endY;
+
+        if (distance > 100 && duration < 300) {
+            launchBowl();
+        }
+    });
+
+    function launchBowl() {
+        isFlying = true;
+        bowl.style.transition = 'bottom 0.5s ease-out, transform 0.5s';
+        bowl.style.bottom = '70%'; // Launch upward
+        
+        setTimeout(() => {
+            checkCollision();
+        }, 500);
+    }
+
+    function checkCollision() {
+        const bRect = bowl.getBoundingClientRect();
+        const cRect = customer.getBoundingClientRect();
+
+        // Simple overlap check
+        if (bRect.left < cRect.right && bRect.right > cRect.left) {
+            served++;
+            countEl.innerText = served;
+            if (served >= 5) {
+                // Redirect to your original victory screen/video page
+                window.location.href = 'victory.html'; 
+            }
+        }
+
+        // Reset bowl
+        bowl.style.transition = 'none';
+        bowl.style.bottom = '50px';
+        isFlying = false;
+    }
+
+    moveCustomer();
+</script>
+</body>
+</html>
