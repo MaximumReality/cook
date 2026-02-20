@@ -3,20 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <link rel="manifest" href="manifest.json">
-
-<meta name="apple-mobile-web-app-capable" content="yes">
-
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
-<meta name="apple-mobile-web-app-title" content="Harira Quest">
-
-<link rel="apple-touch-icon" href="mochkil-harira.PNG">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Harira Quest">
+    <link rel="apple-touch-icon" href="mochkil-harira.PNG">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 
     <title>Mission Success | Maximum Reality</title>
     <style>
         :root { --neon-green: #39FF14; --neon-cyan: #00FFFF; --neon-pink: #FF00FF; }
+        
         body { 
             margin: 0; background: #000; color: white; 
             font-family: 'Courier New', monospace; overflow: hidden;
@@ -25,31 +21,47 @@
         }
         
         #victory-header {
-            text-align: center; margin-bottom: 20px; z-index: 10;
+            text-align: center; 
+            margin-top: env(safe-area-inset-top, 40px); /* Avoids Dynamic Island */
+            margin-bottom: 20px; 
+            z-index: 10;
         }
         
         .glitch-title {
-            font-size: 2.5rem; color: var(--neon-green);
+            font-size: 2.2rem; 
+            color: var(--neon-green);
             text-shadow: 2px 2px var(--neon-pink);
             animation: glitch 1s infinite;
+            margin: 0;
         }
 
-        /* Responsive YouTube Short Container */
         .video-container {
-            position: relative; width: 90%; max-width: 315px;
-            aspect-ratio: 9/16; border: 3px solid var(--neon-cyan);
-            box-shadow: 0 0 20px var(--neon-cyan); border-radius: 15px;
+            position: relative; 
+            width: 85%; 
+            max-width: 300px;
+            aspect-ratio: 9/16; 
+            border: 3px solid var(--neon-cyan);
+            box-shadow: 0 0 25px var(--neon-cyan); 
+            border-radius: 15px;
             overflow: hidden;
+            background: #000;
         }
+
         iframe { width: 100%; height: 100%; border: none; }
 
-                .btn-home {
-            margin-top: 30px; padding: 15px 30px;
-            background: transparent; border: 2px solid var(--neon-pink);
-            color: var(--neon-pink); font-weight: bold; border-radius: 10px;
-            text-decoration: none; text-shadow: 0 0 5px var(--neon-pink);
+        .btn-home {
+            margin-top: 25px; 
+            padding: 12px 25px;
+            background: transparent; 
+            border: 2px solid var(--neon-pink);
+            color: var(--neon-pink); 
+            font-weight: bold; 
+            border-radius: 10px;
+            text-decoration: none; 
+            text-shadow: 0 0 5px var(--neon-pink);
             box-shadow: 0 0 10px var(--neon-pink);
             animation: pulse 2s infinite;
+            margin-bottom: env(safe-area-inset-bottom, 20px);
         }
 
         @keyframes pulse {
@@ -72,22 +84,20 @@
 
     <div id="victory-header">
         <h1 class="glitch-title">HARIRA UNLOCKED</h1>
-        <p style="color: var(--neon-cyan)">MOCHIKIL & AZUL APPROVE</p>
+        <p style="color: var(--neon-cyan); margin-top: 5px;">MOCHKIL & AZUL APPROVE</p>
     </div>
 
     <div class="video-container">
         <iframe 
-    src="https://www.youtube.com/embed/nxcdDiZgwnE?autoplay=1&mute=1&modestbranding=1&rel=0" 
-    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-    allowfullscreen>
-</iframe>
-
+            src="https://www.youtube.com/embed/nxcdDiZgwnE?autoplay=1&mute=1&modestbranding=1&rel=0&playsinline=1" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            allowfullscreen>
+        </iframe>
     </div>
 
     <a href="index.html" class="btn-home">REPLAY MISSION</a>
 
     <script>
-        // Haptic feedback for the "Big Win"
         if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 300]);
     </script>
 </body>
