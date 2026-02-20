@@ -82,12 +82,12 @@ sprites.lentil.src = 'lentil.png';
 sprites.garlic.src = 'garlic.png';
 sprites.mochkil.src = 'mochkil-harira.png';
 
-/* MOVEMENT FIX: Added the touch listener back */
 window.addEventListener('touchmove', e => {
     if (!gameActive) return;
     e.preventDefault();
     let touchX = e.touches[0].clientX;
-    chefX = Math.max(60, Math.min(touchX, canvas.width - 60));
+    // Buffer increased so he doesn't clip off the screen edges
+    chefX = Math.max(80, Math.min(touchX, canvas.width - 80));
 }, {passive: false});
 
 class Ingredient {
@@ -99,14 +99,25 @@ class Ingredient {
         else this.type = 'garlic';
 
         this.x = Math.random() * (canvas.width - 60) + 30;
-        this.y = -50;
-        this.speed = 4 + Math.random() * 5;
+        this.y = -80; // Start higher for the bigger size
+        this.speed = 4.5 + Math.random() * 5.5;
+        this.wobble = Math.random() * 10; // For that creepy roach movement
     }
-    update() { this.y += this.speed; }
+    update() { 
+        this.y += this.speed;
+        // If it's a pest, make it scuttle left and right slightly
+        if (this.type === 'pest') {
+            this.x += Math.sin(this.y / 20) * 2;
+        }
+    }
     draw() {
         if (this.type === 'pest') {
-            ctx.font = "40px serif";
-            ctx.fillText("🪳", this.x - 20, this.y);
+            ctx.save();
+            ctx.font = "70px serif"; // MASSIVE ROACH
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = "#39FF14"; // Eerie green glow
+            ctx.fillText("🪳", this.x - 35, this.y);
+            ctx.restore();
         } else {
             const img = sprites[this.type];
             if (img.complete) {
@@ -118,6 +129,7 @@ class Ingredient {
         }
     }
 }
+
 
 function updateUI() {
     document.getElementById('check-list').innerHTML = `
@@ -140,9 +152,10 @@ function loop() {
     if (!gameActive) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    if (Math.random() < 0.06) items.push(new Ingredient());
+    if (Math.random() < 0.07) items.push(new Ingredient());
     
-    const chefWidth = 140;
+    // Increased size to 160px wide
+    const chefWidth = 160; 
     const scale = chefWidth / sprites.mochkil.width;
     const chefHeight = sprites.mochkil.height * scale;
 
@@ -150,9 +163,9 @@ function loop() {
         item.update();
         item.draw();
         
-        // TIGHTER COLLISION: Must hit the top-center 
-        if (item.y > canvas.height - chefHeight - 20 && item.y < canvas.height - chefHeight + 60 &&
-            item.x > chefX - 45 && item.x < chefX + 45) {
+        // COLLISION: Tighter x-axis (50px) and y-axis focus on the hat/bowl
+        if (item.y > canvas.height - chefHeight - 20 && item.y < canvas.height - chefHeight + 70 &&
+            item.x > chefX - 50 && item.x < chefX + 50) {
             
             if (item.type === 'pest') {
                 recipe.chickpea.count = 0;
@@ -161,7 +174,7 @@ function loop() {
                 if (navigator.vibrate) navigator.vibrate([200, 100, 200]); 
             } else {
                 recipe[item.type].count = Math.min(recipe[item.type].count + 1, recipe[item.type].target);
-                if (navigator.vibrate) navigator.vibrate(15); 
+                if (navigator.vibrate) navigator.vibrate(20); 
             }
             
             updateUI();
@@ -172,7 +185,10 @@ function loop() {
     });
 
     if (sprites.mochkil.complete) {
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = 'var(--neon-cyan)';
         ctx.drawImage(sprites.mochkil, chefX - (chefWidth/2), canvas.height - chefHeight - 20, chefWidth, chefHeight);
+        ctx.shadowBlur = 0;
     }
     requestAnimationFrame(loop);
 }
