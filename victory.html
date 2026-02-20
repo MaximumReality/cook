@@ -16,15 +16,19 @@
         body { 
             margin: 0; background: #000; color: white; 
             font-family: 'Courier New', monospace; overflow: hidden;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            display: flex; flex-direction: column; align-items: center; 
+            /* CHANGE: Start from top to give us manual control over the nudge */
+            justify-content: flex-start; 
             height: 100vh;
             width: 100vw;
+            box-sizing: border-box;
+            /* Extra top padding to clear the Dynamic Island */
+            padding-top: calc(env(safe-area-inset-top, 20px) + 15px);
         }
         
         #victory-header {
             text-align: center; 
-            margin-top: env(safe-area-inset-top, 20px);
-            margin-bottom: 10px; 
+            margin-bottom: 15px; 
             z-index: 10;
         }
         
@@ -33,26 +37,28 @@
             color: var(--neon-green);
             text-shadow: 2px 2px var(--neon-pink);
             animation: glitch 1s infinite;
+            margin: 0;
         }
 
-        /* RESCUED VIDEO BOX: Wider to allow YouTube controls to be clickable */
+        /* RESCUED VIDEO BOX: Sized to fit comfortably between header and button */
         .video-container {
             position: relative; 
-            width: 90%; 
-            max-width: 320px; 
+            width: 88%; 
+            max-width: 310px; 
             aspect-ratio: 9/16; 
             border: 3px solid var(--neon-cyan);
             box-shadow: 0 0 25px var(--neon-cyan); 
             border-radius: 15px;
             overflow: hidden;
             background: #000;
+            flex-shrink: 1; /* Allows it to shrink slightly if space is tight */
         }
 
         iframe, video { width: 100%; height: 100%; border: none; }
 
         .btn-home {
             margin-top: 20px; 
-            padding: 15px 40px;
+            padding: 14px 40px;
             background: transparent; 
             border: 2px solid var(--neon-pink);
             color: var(--neon-pink); 
@@ -63,7 +69,13 @@
             box-shadow: 0 0 10px var(--neon-pink);
             animation: pulse 2s infinite;
             z-index: 100;
-            margin-bottom: env(safe-area-inset-bottom, 20px);
+            text-transform: uppercase;
+        }
+
+        /* THE NUDGE: This invisible spacer pushes everything UP away from the Safari bar */
+        .bottom-spacer {
+            flex-grow: 1;
+            min-height: calc(env(safe-area-inset-bottom, 20px) + 60px);
         }
 
         @keyframes pulse {
@@ -80,9 +92,10 @@
             100% { transform: translate(0); }
         }
 
-        @media screen and (max-height: 700px) {
-            .video-container { max-width: 260px; }
+        @media screen and (max-height: 750px) {
+            .video-container { max-width: 250px; }
             .glitch-title { font-size: 1.5rem; }
+            .btn-home { padding: 10px 30px; }
         }
     </style>
 </head>
@@ -90,7 +103,7 @@
 
     <div id="victory-header">
         <h1 class="glitch-title">HARIRA UNLOCKED</h1>
-        <p style="color: var(--neon-cyan); margin: 0; font-size: 0.9rem;">MOCHKIL & AZUL APPROVE</p>
+        <p style="color: var(--neon-cyan); margin: 5px 0 0 0; font-size: 0.9rem;">MOCHKIL & AZUL APPROVE</p>
     </div>
 
     <div class="video-container" id="video-wrapper">
@@ -104,6 +117,8 @@
 
     <a href="index.html" class="btn-home">REPLAY MISSION</a>
 
+    <div class="bottom-spacer"></div>
+
     <script>
         if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 300]);
 
@@ -111,7 +126,6 @@
 
         function checkConnection() {
             if (!navigator.onLine) {
-                // Offline: Show the local MP4
                 container.innerHTML = `
                     <video autoplay playsinline controls muted style="width:100%; height:100%; object-fit:cover;">
                         <source src="mission-victory.mp4" type="video/mp4">
@@ -120,10 +134,7 @@
             }
         }
 
-        // Run check on load
         checkConnection();
-
-        // Listen for network changes
         window.addEventListener('online', () => location.reload());
         window.addEventListener('offline', checkConnection);
     </script>
