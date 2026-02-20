@@ -1,4 +1,4 @@
-const CACHE_NAME = 'harira-quest-v5'; 
+const CACHE_NAME = 'harira-quest-v5.1'; 
 const ASSETS_TO_CACHE = [
   '/',
   'index.html',
@@ -37,20 +37,25 @@ const ASSETS_TO_CACHE = [
   'that-8-bit-music.mp3'
 ];
 
+// INSTALL: Cache everything and then notify the UI
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
+      console.log('Azul is encrypting the pantry...');
       return cache.addAll(ASSETS_TO_CACHE).then(() => {
-          // Notify the UI that we are ready for airplane mode
-          self.clients.matchAll().then(clients => {
-              clients.forEach(client => client.postMessage({type: 'CACHE_COMPLETE'}));
+        // This is the magic part that hides your loading screen!
+        return self.clients.matchAll().then(clients => {
+          clients.forEach(client => {
+            client.postMessage({ type: 'CACHE_COMPLETE' });
           });
+        });
       });
     })
   );
   self.skipWaiting();
 });
 
+// ACTIVATE: Standard cleanup
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys => Promise.all(
@@ -60,15 +65,11 @@ self.addEventListener('activate', event => {
   return self.clients.claim();
 });
 
+// FETCH: Standard logic with your 404 fallback
 self.addEventListener('fetch', event => {
-  // Fix for iOS Video/Audio Range Requests
-  if (event.request.url.match(/\.(mp4|mp3)$/)) {
+  if (event.request.mode === 'navigate') {
     event.respondWith(
-      caches.match(event.request).then(response => {
-        return response || fetch(event.request).then(res => {
-          return res; // Fallback to network
-        });
-      })
+      fetch(event.request).catch(() => caches.match(event.request) || caches.match('404.html'))
     );
   } else {
     event.respondWith(
