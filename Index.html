@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Harira Quest | Maximum Reality</title>
+    <style>
+        :root { --neon-pink: #FF00FF; --neon-cyan: #00FFFF; }
+
+        body { 
+            margin: 0; 
+            /* Using the version with the full kitchen background */
+            background: url('mochkil-harira-bg.PNG') no-repeat center center fixed; 
+            background-size: cover;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end; /* Keeps the button at the bottom area */
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+        }
+
+        /* Subtle darkening so the Start button pops */
+        body::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+
+        #content-wrapper {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            margin-bottom: 80px; /* Adjusted for Pro Max thumb reach */
+        }
+
+        .btn-start {
+            padding: 18px 36px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 3px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            font-size: 1.4rem;
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 12px;
+            box-shadow: 0 0 15px var(--neon-cyan);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* 🏡 Home Button for MaximumReality.xyz */
+        .home-link {
+            position: absolute;
+            top: 60px; /* Below the Dynamic Island */
+            left: 20px;
+            text-decoration: none;
+            font-size: 1.1rem;
+            color: white;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: 1px solid var(--neon-pink);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 0 10px var(--neon-pink);
+        }
+    </style>
+</head>
+<body>
+
+    <a href="https://MaximumReality.xyz" class="home-link">
+        <span>🏡</span> Home
+    </a>
+
+    <div id="content-wrapper">
+        <a href="stage1.html" class="btn-start">Start Harira Quest</a>
+    </div>
+
+</body>
+</html>
