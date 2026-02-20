@@ -3,14 +3,14 @@
   "name": "Snack Attack: Harira Quest",
   "icons": [
     {
-      "src": "mochkil-harira.png",
+      "src": "mochkil-harira.PNG",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/PNG"
     },
     {
-      "src": "mochkil-harira.png",
+      "src": "mochkil-harira.PNG",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/PNG"
     }
   ],
   "start_url": "/index.html",
