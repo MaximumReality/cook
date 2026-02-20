@@ -8,62 +8,51 @@
         :root { --neon-blue: #00FFEF; --neon-pink: #FF00FF; --neon-green: #39FF14; }
         body { margin: 0; background: #000; overflow: hidden; font-family: 'Courier New', monospace; color: white; }
         
-        /* Azul's Hologram Corner */
-        #azul-monitor {
-            position: absolute; top: 60px; right: 20px;
-            width: 100px; height: 100px;
-            border: 1px solid var(--neon-blue);
-            background: rgba(0, 255, 239, 0.1);
-            border-radius: 10px; z-index: 20;
-            text-align: center; font-size: 10px;
-            box-shadow: 0 0 10px var(--neon-blue);
+        #ui-text { position: absolute; top: 65px; left: 20px; z-index: 50; pointer-events: none; }
+        .stat { color: var(--neon-blue); font-size: 20px; font-weight: bold; }
+
+        /* The Pot/Bowl Assembly */
+        #pot-wrapper {
+            position: absolute; top: 55%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 340px; height: 340px;
         }
-        #azul-img { width: 80%; margin-top: 5px; filter: drop-shadow(0 0 5px var(--neon-blue)); }
 
-        #ui-text { position: absolute; top: 65px; left: 20px; z-index: 10; }
-        .stat { color: var(--neon-blue); font-weight: bold; }
+        #bowl-img {
+            position: absolute; inset: 0;
+            width: 100%; height: auto;
+            z-index: 10; /* Top Layer: Front Rim */
+            pointer-events: none;
+        }
 
-        /* The Pot */
-            #pot-wrapper {
-        position: absolute; top: 55%; left: 50%;
-        transform: translate(-50%, -50%);
-        width: 320px; height: 320px;
-    }
+        #harira-soup {
+            position: absolute;
+            top: 15%; left: 10%; width: 80%; height: 60%;
+            background: radial-gradient(circle, #8b4513, #4a3219);
+            border-radius: 50%; z-index: 1; /* Bottom Layer */
+            overflow: hidden;
+        }
 
-    /* The actual soup inside */
-    #harira-contents {
-        position: absolute; inset: 20px;
-        background: radial-gradient(circle, #8b4513, #4a3219);
-        border-radius: 50%; z-index: 1;
-        overflow: hidden;
-    }
+        #ladle-img {
+            position: absolute;
+            width: 140px; height: auto;
+            z-index: 5; /* Middle Layer: Behind rim, above soup */
+            pointer-events: none;
+            transform-origin: center;
+        }
 
-    /* The Ladle sprite */
-    #ladle-sprite {
-        position: absolute; width: 100px; height: 100px;
-        z-index: 2; pointer-events: none;
-        transform-origin: center;
-    }
-
-    /* The Bowl overlay (This should be a PNG with a transparent center) */
-    #bowl-overlay {
-        position: absolute; inset: 0;
-        z-index: 3; pointer-events: none;
-    }
-
-        /* Swirl Effect */
-        #swirl {
-            position: absolute; top: 50%; left: 50%;
-            width: 80%; height: 80%;
-            border: 4px dashed rgba(255,255,255,0.2);
-            border-radius: 50%; transform: translate(-50%, -50%);
+        #azul-hud {
+            position: absolute; top: 60px; right: 20px;
+            width: 110px; border: 1px solid var(--neon-blue);
+            background: rgba(0, 255, 239, 0.1); border-radius: 10px;
+            text-align: center; font-size: 10px; z-index: 100;
         }
 
         #next-btn {
             display: none; position: absolute; bottom: 80px; left: 50%;
             transform: translateX(-50%); padding: 20px 40px;
             background: var(--neon-pink); border: none; color: white;
-            font-weight: bold; border-radius: 50px; z-index: 100;
+            font-weight: bold; border-radius: 50px; z-index: 200;
             box-shadow: 0 0 20px var(--neon-pink);
         }
     </style>
@@ -72,57 +61,54 @@
 
 <div id="ui-text">
     <div class="stat">DENSITY: <span id="density-val">0</span>%</div>
-    <div style="font-size: 12px; color: var(--neon-pink);">STIR TO THICKEN</div>
 </div>
 
-<div id="azul-monitor">
-    <img src="azul-insight.png" id="azul-img">
-    <div style="color: var(--neon-blue)">ANALYZING...</div>
+<div id="azul-hud">
+    <img src="azul-insight.png" style="width: 80%; margin-top:5px;">
+    <div id="azul-msg" style="color: var(--neon-blue); padding: 5px;">STIRRING...</div>
 </div>
 
-<div id="pot-container">
-    <div id="pot-soup">
-        <div id="swirl"></div>
-    </div>
-</div>
-    <div id="pot-wrapper">
-    <div id="harira-contents">
-        <div id="swirl"></div> </div>
-    
-    <img src="ladle.png" id="ladle-sprite">
-    <img src="bowl.png" id="bowl-overlay">
+<div id="pot-wrapper">
+    <div id="harira-soup"></div>
+    <img src="ladle.png" id="ladle-img">
+    <img src="bowl.png" id="bowl-img">
 </div>
 
-<button id="next-btn" onclick="window.location.href='stage3.html'">STAGE 3: THE SPICE</button>
+<button id="next-btn" onclick="window.location.href='stage3.html'">ADD THE SPICE</button>
 
 <script>
+    const music = new Audio('ready-to-play.mp3');
+    music.loop = true;
+
+    const ladle = document.getElementById('ladle-img');
+    const pot = document.getElementById('pot-wrapper');
     const densityVal = document.getElementById('density-val');
-    const swirl = document.getElementById('swirl');
+    const azulMsg = document.getElementById('azul-msg');
     const nextBtn = document.getElementById('next-btn');
-    const azulMsg = document.querySelector('#azul-monitor div');
-    
+
     let totalRotation = 0;
     let lastAngle = null;
-    let density = 0;
     let isDone = false;
 
+    // Start music on interaction
+    window.addEventListener('touchstart', () => { if(music.paused) music.play(); }, {once: true});
+
     window.addEventListener('touchmove', (e) => {
-    if (isDone) return;
-    const touch = e.touches[0];
-    const rect = document.getElementById('pot-wrapper').getBoundingClientRect();
-    
-    // Calculate position relative to the pot center
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-    
-    // Update Ladle Position (Middle Layer)
-    const ladle = document.getElementById('ladle-sprite');
-    ladle.style.left = (touch.clientX - rect.left - 50) + 'px';
-    ladle.style.top = (touch.clientY - rect.top - 50) + 'px';
-        const touch = e.touches[0];
-        const centerX = window.innerWidth / 2;
-        const centerY = window.innerHeight * 0.55;
+        if (isDone) return;
+        e.preventDefault();
         
+        const touch = e.touches[0];
+        const rect = pot.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+
+        // Position Ladle
+        const lx = touch.clientX - rect.left - 70;
+        const ly = touch.clientY - rect.top - 70;
+        ladle.style.left = lx + 'px';
+        ladle.style.top = ly + 'px';
+
+        // Calculate Rotation
         const dx = touch.clientX - centerX;
         const dy = touch.clientY - centerY;
         const angle = Math.atan2(dy, dx);
@@ -133,33 +119,21 @@
             if (diff < -Math.PI) diff += Math.PI * 2;
             
             totalRotation += Math.abs(diff);
+            const progress = Math.min((totalRotation / (Math.PI * 20)) * 100, 100);
             
-            // Calculate Density progress
-            density = Math.min((totalRotation / (Math.PI * 25)) * 100, 100);
-            densityVal.innerText = Math.floor(density);
-            
-            // Visual rotation of the swirl
-            swirl.style.transform = `translate(-50%, -50%) rotate(${totalRotation}rad)`;
-            
-            // Azul's Feedback
-            if (density > 50) {
-                azulMsg.innerText = "OPTIMAL";
-                azulMsg.style.color = "var(--neon-green)";
-            }
+            densityVal.innerText = Math.floor(progress);
+            ladle.style.transform = `rotate(${angle}rad)`;
 
-            if (density >= 100) {
-                completeStage();
+            if (progress >= 100) {
+                isDone = true;
+                azulMsg.innerText = "DENSITY OPTIMAL";
+                azulMsg.style.color = "#39FF14";
+                nextBtn.style.display = "block";
+                if(navigator.vibrate) navigator.vibrate(200);
             }
         }
         lastAngle = angle;
     }, { passive: false });
-
-    function completeStage() {
-        isDone = true;
-        azulMsg.innerText = "PERFECT";
-        nextBtn.style.display = "block";
-        if (navigator.vibrate) navigator.vibrate(200);
-    }
 </script>
 </body>
 </html>
