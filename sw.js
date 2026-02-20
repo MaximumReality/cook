@@ -1,4 +1,4 @@
-const CACHE_NAME = 'harira-quest-v4.7'; 
+const CACHE_NAME = 'harira-quest-v4.8'; 
 const ASSETS_TO_CACHE = [
   '/',
   'index.html',
@@ -36,30 +36,23 @@ const ASSETS_TO_CACHE = [
   'that-8-bit-music.mp3'
 ];
 
-// INSTALL: Only cache missing files
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(async cache => {
-      const cachedRequests = await cache.keys();
-      const cachedUrls = cachedRequests.map(req => req.url.split('/').pop());
-      const missingAssets = ASSETS_TO_CACHE.filter(asset => !cachedUrls.includes(asset));
-      if (missingAssets.length) {
-        console.log('Caching missing assets:', missingAssets);
-        return cache.addAll(missingAssets);
-      }
+    caches.open(CACHE_NAME).then(cache => {
+      console.log('Azul is stocking the pantry...');
+      // addAll is all-or-nothing. If one filename is wrong, none will cache.
+      return cache.addAll(ASSETS_TO_CACHE);
     })
   );
   self.skipWaiting();
 });
 
-// ACTIVATE: Delete old caches
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(cacheNames =>
       Promise.all(
         cacheNames.map(cache => {
           if (cache !== CACHE_NAME) {
-            console.log('Deleting old cache:', cache);
             return caches.delete(cache);
           }
         })
@@ -69,15 +62,25 @@ self.addEventListener('activate', event => {
   return self.clients.claim();
 });
 
-// FETCH: Pages → network first, Assets → cache first
 self.addEventListener('fetch', event => {
-  if (event.request.mode === 'navigate') {
+  // Special handling for video/audio to bypass iOS Range Request issues
+  const isMedia = event.request.url.match(/\.(mp4|mp3)$/);
+  
+  if (isMedia) {
     event.respondWith(
-      fetch(event.request).catch(() => caches.match(event.request) || caches.match('404.html'))
+      caches.match(event.request).then(response => {
+        return response || fetch(event.request);
+      })
+    );
+  } else if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).catch(() => 
+        caches.match(event.request) || caches.match('index.html')
+      )
     );
   } else {
     event.respondWith(
       caches.match(event.request).then(response => response || fetch(event.request))
     );
   }
-}););
+});
