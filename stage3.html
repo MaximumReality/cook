@@ -68,15 +68,18 @@
 
 .dropping {
     animation: none !important; 
-    transition: top 0.5s cubic-bezier(0.47, 0, 0.74, 0.71), 
-                transform 0.5s, 
-                opacity 0.2s ease-in 0.3s; /* Quicker fade-out at the end */
+    /* Slightly faster transition for a snappier drop */
+    transition: top 0.4s cubic-bezier(0.47, 0, 0.74, 0.71), 
+                transform 0.4s, 
+                opacity 0.2s ease-in 0.2s; 
+
+    /* Raised the target to 64vh to keep it inside the bowl's body */
+    top: 64vh !important; 
     
-    top: 68vh !important; /* Matches your ripple height perfectly */
-    
-    transform: translateX(-50%) scale(0.5) !important;
+    transform: translateX(-50%) scale(0.4) !important;
     opacity: 0;
 }
+
 
 
         .ripple {
