@@ -5,51 +5,101 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>The Mash | Snack Attack</title>
     <style>
-        :root { --neon-blue: #00FFEF; --neon-pink: #FF00FF; --neon-green: #39FF14; }
-        body { margin: 0; background: #000; overflow: hidden; font-family: 'Courier New', monospace; color: white; }
-        
-        #ui-text { position: absolute; top: 65px; left: 20px; z-index: 50; pointer-events: none; }
-        .stat { color: var(--neon-blue); font-size: 20px; font-weight: bold; }
+    :root { 
+        --neon-blue: #00FFEF; 
+        --neon-pink: #FF00FF; 
+        --neon-green: #39FF14; 
+    }
 
-        /* The Game Area */
-        #game-container {
-            position: absolute; top: 55%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 350px; height: 350px;
-        }
+    body {
+        margin: 0;
+        padding: 0;
+        /* Ensure the filename case matches GitHub precisely */
+        background: url('cyber-kitchen-bg.PNG') no-repeat center center fixed;
+        background-size: cover;
+        height: 100vh;
+        overflow: hidden;
+        background-color: #000;
+    }
 
-        /* The New Combined Asset */
-        #bowl-img {
-            position: absolute; inset: 0;
-            width: 100%; height: auto;
-            z-index: 1;
-        }
+    /* TRANSLUCENT BLACK OVERLAY */
+    body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6); /* Translucent black for high contrast */
+        z-index: 0;
+    }
 
-        /* The Ladle - Sits on top of the soup */
-        #ladle-img {
-            position: absolute;
-            width: 140px; height: auto;
-            z-index: 10;
-            pointer-events: none;
-            /* Start it slightly off-center */
-            top: 20%; left: 30%;
-            transform-origin: center;
-        }
+    #ui-text { 
+        position: absolute; 
+        top: 85px; /* Clearing the Dynamic Island */
+        left: 20px; 
+        z-index: 100; 
+        pointer-events: none; 
+        font-family: 'Courier New', monospace;
+    }
 
-        #azul-hud {
-            position: absolute; top: 60px; right: 20px;
-            width: 110px; border: 1px solid var(--neon-blue);
-            background: rgba(0, 255, 239, 0.1); border-radius: 10px;
-            text-align: center; font-size: 10px; z-index: 100;
-        }
+    .stat { color: var(--neon-blue); font-size: 20px; font-weight: bold; text-shadow: 2px 2px #000; }
 
-        #next-btn {
-            display: none; position: absolute; bottom: 80px; left: 50%;
-            transform: translateX(-50%); padding: 20px 40px;
-            background: var(--neon-pink); border: none; color: white;
-            font-weight: bold; border-radius: 50px; z-index: 200;
-        }
-    </style>
+    #pot-stage {
+        position: absolute; 
+        top: 55%; 
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 350px; 
+        height: 350px;
+        z-index: 10; /* Action layer above the background */
+    }
+
+    #bowl-img {
+        width: 100%; 
+        height: auto;
+        z-index: 1;
+    }
+
+    #ladle-img {
+        position: absolute;
+        width: 130px; 
+        height: auto;
+        z-index: 20; /* Stays on top of the soup */
+        pointer-events: none;
+        top: 30%; 
+        left: 30%;
+        transform-origin: center;
+    }
+
+    #azul-hud {
+        position: absolute; 
+        top: 80px; 
+        right: 20px;
+        width: 110px; 
+        border: 2px solid var(--neon-blue);
+        background: rgba(0, 255, 239, 0.15); 
+        border-radius: 10px;
+        text-align: center; 
+        font-size: 10px; 
+        z-index: 100;
+        backdrop-filter: blur(5px); /* Makes the HUD feel premium */
+    }
+
+    #next-btn {
+        display: none; 
+        position: absolute; 
+        bottom: 80px; 
+        left: 50%;
+        transform: translateX(-50%); 
+        padding: 20px 40px;
+        background: var(--neon-pink); 
+        border: none; 
+        color: white;
+        font-weight: bold; 
+        border-radius: 50px; 
+        z-index: 200;
+        box-shadow: 0 0 20px var(--neon-pink);
+    }
+</style>
+
 </head>
 <body>
 
