@@ -1,4 +1,4 @@
-const CACHE_NAME = 'harira-quest-v4🍲'; 
+const CACHE_NAME = 'harira-quest-v4.1😺🥣'; 
 const ASSETS_TO_CACHE = [
   '/',
   'index.html',
@@ -7,13 +7,15 @@ const ASSETS_TO_CACHE = [
   'stage3.html',
   'stage4.html',
   'victory.html',
+  'sw.js',
   'manifest.json',
   'README.md',
   'LICENSE',
   
   // Favicon & Portraits
-  'mochkil-harira.PNG',  // Favicon & Thumbnail
+  'mochkil-harira.PNG',  // Favicon
   'mochkil-harira.png',  // Game Sprite
+  'mochkil-harira.PNG',  // Thumbnail
   'azul-hacker.png',
   'azul-insight.png',
   
