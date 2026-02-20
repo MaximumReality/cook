@@ -34,18 +34,18 @@
             padding: env(safe-area-inset-top) 20px env(safe-area-inset-bottom) 20px;
         }
 
-        /* --- THE LOADING SHIELD STYLE --- */
+        /* --- AZUL SPLASH OVERLAY --- */
         #pantry-loader {
             position: fixed;
             inset: 0;
             background: #000;
-            z-index: 10000; /* Stays on top of everything */
+            z-index: 10000; 
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 20px;
-            transition: opacity 0.8s ease;
+            transition: opacity 0.8s ease, visibility 0.8s;
         }
 
         .loader-img {
@@ -56,7 +56,26 @@
             border-radius: 15px;
         }
 
-        /* --- GAME LAUNCHER STYLE --- */
+        .progress-container {
+            width: 80%;
+            max-width: 300px;
+            height: 12px;
+            border: 1px solid var(--neon-cyan);
+            border-radius: 6px;
+            margin-top: 20px;
+            background: rgba(0, 255, 255, 0.1);
+            overflow: hidden;
+        }
+
+        #progress-fill {
+            width: 0%;
+            height: 100%;
+            background: var(--neon-cyan);
+            box-shadow: 0 0 10px var(--neon-cyan);
+            transition: width 0.3s ease;
+        }
+
+        /* --- GAME LAUNCHER (Behind the Splash) --- */
         #game-launcher {
             display: flex;
             flex-direction: column;
@@ -150,8 +169,13 @@
 
     <div id="pantry-loader">
         <img src="azul-loading.PNG" class="loader-img" alt="Azul Loading">
-        <h2 style="color:var(--neon-pink); margin-top:25px; letter-spacing:2px;">STOCKING PANTRY...</h2>
-        <p style="color:var(--neon-cyan); font-size:0.8rem;">AZUL is syncing quantum assets</p>
+        <h2 id="load-status" style="color:var(--neon-pink); margin-top:25px; letter-spacing:2px; font-size: 1rem;">AZUL: SYNCING PANTRY...</h2>
+        
+        <div class="progress-container">
+            <div id="progress-fill"></div>
+        </div>
+        
+        <p id="load-detail" style="color:var(--neon-cyan); font-size:0.7rem; margin-top: 12px; opacity: 0.8;">Handshaking with 2TB storage...</p>
     </div>
 
     <div id="game-launcher">
@@ -191,23 +215,43 @@
             const loader = document.getElementById('pantry-loader');
             if (loader) {
                 loader.style.opacity = "0";
-                setTimeout(() => loader.remove(), 800);
+                setTimeout(() => {
+                    loader.style.visibility = "hidden";
+                    // Only trigger toast if it's the first time
+                    showPantryToast();
+                }, 800);
             }
         }
 
         if ('serviceWorker' in navigator) {
-            // 1. If SW is already active and controlling the page, hide loader after a cool-down
-            navigator.serviceWorker.ready.then(registration => {
-                if (registration.active) {
-                    setTimeout(hideLoader, 2000); 
+            // Check if we are already loaded
+            navigator.serviceWorker.ready.then(reg => {
+                if (reg.active && !window.location.search.includes('reload')) {
+                    // Short aesthetic delay for Azul if already cached
+                    setTimeout(() => {
+                        document.getElementById('progress-fill').style.width = '100%';
+                        setTimeout(hideLoader, 500);
+                    }, 1500);
                 }
             });
 
-            // 2. Listen for the initial "Pantry Stocked" message
+            // Handle progress from SW v5.2
             navigator.serviceWorker.addEventListener('message', event => {
-                if (event.data && event.data.type === 'CACHE_COMPLETE') {
-                    hideLoader();
-                    showPantryToast();
+                const fill = document.getElementById('progress-fill');
+                const status = document.getElementById('load-status');
+                const detail = document.getElementById('load-detail');
+
+                if (event.data.type === 'PROGRESS') {
+                    const percent = Math.round((event.data.loaded / event.data.total) * 100);
+                    fill.style.width = percent + '%';
+                    status.innerText = `STOCKING PANTRY: ${percent}%`;
+                    detail.innerText = `Downloading: ${event.data.file}`;
+                }
+
+                if (event.data.type === 'CACHE_COMPLETE') {
+                    fill.style.width = '100%';
+                    status.innerText = "PANTRY SECURED";
+                    setTimeout(hideLoader, 1000);
                 }
             });
         }
@@ -219,6 +263,7 @@
                 background: var(--neon-cyan); color: #000; padding: 10px 20px;
                 border-radius: 50px; font-family: monospace; font-weight: bold;
                 z-index: 1000; box-shadow: 0 0 15px var(--neon-cyan);
+                animation: float-up 0.5s ease-out;
             `;
             toast.innerText = "AZUL: PANTRY STOCKED ✅";
             document.body.appendChild(toast);
