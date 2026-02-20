@@ -1,4 +1,4 @@
-const CACHE_NAME = 'harira-quest-v4.1😺🥣'; 
+const CACHE_NAME = 'harira-quest-v4.2😺🥣'; 
 const ASSETS_TO_CACHE = [
   '/',
   'index.html',
@@ -15,7 +15,7 @@ const ASSETS_TO_CACHE = [
   // Favicon & Portraits
   'mochkil-harira.PNG',  // Favicon
   'mochkil-harira.png',  // Game Sprite
-  'mochkil-harira.PNG',  // Thumbnail
+  'mochkil-harira1.PNG', // Confident Chef Thumbnail
   'azul-hacker.png',
   'azul-insight.png',
   
@@ -61,10 +61,19 @@ self.addEventListener('activate', (event) => {
   return self.clients.claim();
 });
 
+// SINGLE MERGED FETCH EVENT
 self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
-    })
-  );
+  // 1. For Page Navigations: Try network first so you see code updates instantly
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).catch(() => caches.match(event.request))
+    );
+  } else {
+    // 2. For Assets (Images/Audio): Cache first for that snappy arcade feel
+    event.respondWith(
+      caches.match(event.request).then((response) => {
+        return response || fetch(event.request);
+      })
+    );
+  }
 });
