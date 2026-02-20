@@ -55,6 +55,15 @@
             border-radius: 15px;
             overflow: hidden;
             background: #000;
+            transition: height 0.3s ease;
+        }
+
+        /* SCREEN HEIGHT CHECK: If the toolbar is visible, shrink the video */
+        @media screen and (max-height: 700px) {
+            .video-container {
+                max-width: 220px;
+            }
+            .glitch-title { font-size: 1.4rem; }
         }
 
         iframe, video {
@@ -102,7 +111,7 @@
         <p style="color: var(--neon-cyan); margin: 0; font-size: 0.9rem;">MOCHKIL & AZUL APPROVE</p>
     </div>
 
-    <div class="video-container" id="video-wrapper">
+    <div class="video-container">
         <iframe 
             id="missionVideo"
             src="https://www.youtube.com/embed/nxcdDiZgwnE?autoplay=1&mute=1&modestbranding=1&rel=0&playsinline=1" 
@@ -117,11 +126,10 @@
         // Vibrate on page load
         if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 300]);
 
-        // Offline fallback
-        const container = document.getElementById('video-wrapper');
+        // Offline fallback for video
         const iframe = document.getElementById('missionVideo');
-
         if (!navigator.onLine) {
+            const container = iframe.parentNode;
             container.innerHTML = `
                 <video autoplay playsinline controls>
                     <source src="mission-victory.mp4" type="video/mp4">
@@ -129,7 +137,7 @@
             `;
         }
 
-        // Reload when connection changes
+        // Optional: reload when connection changes
         window.addEventListener('online', () => location.reload());
         window.addEventListener('offline', () => location.reload());
     </script>
