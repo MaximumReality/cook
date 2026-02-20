@@ -17,26 +17,33 @@
             --neon-cyan: #00FFFF;
             --neon-green: #39FF14;
         }
+
         body {
             margin: 0;
             background: #000;
             color: white;
             font-family: 'Courier New', monospace;
+            /* THE MAGIC COMBO FOR CENTERING */
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: space-between; /* Pushes content to edges */
+            justify-content: center; /* Centers vertically */
+            align-items: center;     /* Centers horizontally */
             height: 100vh;
-            padding: env(safe-area-inset-top, 40px) 0 env(safe-area-inset-bottom, 40px) 0;
+            width: 100vw;
             overflow: hidden;
             box-sizing: border-box;
+            /* This ensures we stay inside the Safari bars without touching them */
+            padding: env(safe-area-inset-top) 20px env(safe-area-inset-bottom) 20px;
         }
 
-        #top-section {
+        /* Grouping content to keep the spacing tight and centered */
+        #game-launcher {
             display: flex;
             flex-direction: column;
             align-items: center;
             width: 100%;
+            max-width: 350px;
+            gap: 20px; /* Consistent gap between all elements */
         }
 
         #header-nav {
@@ -44,16 +51,14 @@
             align-items: center;
             justify-content: center;
             gap: 15px;
-            margin-bottom: 10px;
         }
 
         .chef-thumb {
-            width: 75px;
-            height: 75px;
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
             border: 3px solid var(--neon-cyan);
             box-shadow: 0 0 15px var(--neon-cyan);
-            object-fit: cover;
             animation: pulse-glow 2s infinite ease-in-out;
         }
 
@@ -72,11 +77,11 @@
         }
 
         h1 {
-            font-size: 1.8rem;
+            font-size: 2rem;
             color: var(--neon-pink);
             text-shadow: 0 0 10px var(--neon-pink);
-            margin: 10px 0;
-            letter-spacing: 1px;
+            margin: 0;
+            text-align: center;
         }
 
         .mission-box {
@@ -84,59 +89,67 @@
             padding: 15px;
             background: rgba(0, 255, 255, 0.05);
             box-shadow: 0 0 15px var(--neon-cyan);
-            width: 85%;
-            max-width: 320px;
             border-radius: 15px;
-            text-align: left;
+            width: 100%;
+            box-sizing: border-box;
         }
 
-        .log-text { font-size: 0.8rem; color: var(--neon-cyan); line-height: 1.4; }
+        .log-text { font-size: 0.85rem; color: var(--neon-cyan); line-height: 1.4; }
 
         .begin-btn {
-            padding: 18px 40px;
+            width: 100%;
+            padding: 20px 0;
             background: var(--neon-green);
             color: #000;
             border: none;
             font-weight: bold;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             border-radius: 15px;
             box-shadow: 0 0 20px var(--neon-green);
             text-transform: uppercase;
-            /* Extra lift to sit nicely above the Safari toolbar */
-            margin-bottom: 20px; 
+            cursor: pointer;
         }
 
         @keyframes pulse-glow {
             0%, 100% { box-shadow: 0 0 10px var(--neon-cyan); transform: scale(1); }
             50% { box-shadow: 0 0 20px var(--neon-cyan); transform: scale(1.03); }
         }
+
+        /* Extra squeeze for very small heights (Toolbar + Landscape) */
+        @media screen and (max-height: 600px) {
+            #game-launcher { gap: 10px; }
+            .chef-thumb { width: 50px; height: 50px; }
+            h1 { font-size: 1.5rem; }
+            .log-text { font-size: 0.75rem; }
+        }
     </style>
 </head>
 <body>
 
-    <div id="top-section">
+    <div id="game-launcher">
         <div id="header-nav">
             <img src="mochkil-harira.png" class="chef-thumb" alt="Chef Mochkil">
             <a href="https://MaximumReality.xyz" class="home-link">
                 <span>🏡</span> HOME
             </a>
         </div>
-        <h1>HARIRA QUEST</h1>
-    </div>
-    
-    <div class="mission-box">
-        <div class="log-text">
-            <strong style="color: white;">[LOG]:</strong> SYSTEM ONLINE <br>
-            <strong style="color: white;">[INTEL]:</strong> Mochkil is out of lentils. <br>
-            <strong style="color: white;">[AZUL]:</strong> 99% flavor deficit. <br><br>
-            <strong style="color: white;">[OBJECTIVES]:</strong><br>
-            • CHOP: The Garlic & Lentils <br>
-            • STIR: The Quantum Pot <br>
-            • SERVE: Feed the Hacker Cats
-        </div>
-    </div>
 
-    <button class="begin-btn" onclick="startGame()">BEGIN MISSION</button>
+        <h1>HARIRA QUEST</h1>
+        
+        <div class="mission-box">
+            <div class="log-text">
+                <strong style="color: white;">[LOG]:</strong> SYSTEM ONLINE <br>
+                <strong style="color: white;">[INTEL]:</strong> Mochkil is out of lentils. <br>
+                <strong style="color: white;">[AZUL]:</strong> 99% flavor deficit. <br><br>
+                <strong style="color: white;">[OBJECTIVES]:</strong><br>
+                • CHOP: The Garlic & Lentils <br>
+                • STIR: The Quantum Pot <br>
+                • SERVE: Feed the Hacker Cats
+            </div>
+        </div>
+
+        <button class="begin-btn" onclick="startGame()">BEGIN MISSION</button>
+    </div>
 
     <script>
         function startGame() {
