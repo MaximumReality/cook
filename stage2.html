@@ -11,35 +11,40 @@
         #ui-text { position: absolute; top: 65px; left: 20px; z-index: 50; pointer-events: none; }
         .stat { color: var(--neon-blue); font-size: 20px; font-weight: bold; }
 
-        /* The Pot/Bowl Assembly */
-        #pot-wrapper {
-            position: absolute; top: 55%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 340px; height: 340px;
-        }
+         #pot-wrapper {
+        position: absolute; top: 55%; left: 50%;
+        transform: translate(-50%, -50%);
+        width: 340px; height: 340px;
+        /* This ensures nothing spills outside the bowl area */
+        overflow: hidden; 
+    }
 
-        #bowl-img {
-            position: absolute; inset: 0;
-            width: 100%; height: auto;
-            z-index: 10; /* Top Layer: Front Rim */
-            pointer-events: none;
-        }
+    /* THE SOUP (Back Layer) */
+    #harira-soup {
+        position: absolute;
+        top: 25%; left: 10%; width: 80%; height: 55%;
+        background: radial-gradient(circle, #8b4513, #4a3219);
+        border-radius: 50%; 
+        z-index: 1; 
+    }
 
-        #harira-soup {
-            position: absolute;
-            top: 15%; left: 10%; width: 80%; height: 60%;
-            background: radial-gradient(circle, #8b4513, #4a3219);
-            border-radius: 50%; z-index: 1; /* Bottom Layer */
-            overflow: hidden;
-        }
+    /* THE LADLE (Middle Layer) */
+    #ladle-img {
+        position: absolute;
+        width: 140px; height: auto;
+        z-index: 2; /* Sits above the soup */
+        pointer-events: none;
+    }
 
-        #ladle-img {
-            position: absolute;
-            width: 140px; height: auto;
-            z-index: 5; /* Middle Layer: Behind rim, above soup */
-            pointer-events: none;
-            transform-origin: center;
-        }
+    /* THE BOWL (Top Layer - Front Rim Effect) */
+    #bowl-img {
+        position: absolute; 
+        inset: 0;
+        width: 100%; height: auto;
+        z-index: 3; /* Sits ABOVE the ladle handle */
+        pointer-events: none;
+    }
+
 
         #azul-hud {
             position: absolute; top: 60px; right: 20px;
@@ -70,7 +75,9 @@
 
 <div id="pot-wrapper">
     <div id="harira-soup"></div>
+    
     <img src="ladle.png" id="ladle-img">
+    
     <img src="bowl.png" id="bowl-img">
 </div>
 
