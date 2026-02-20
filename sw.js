@@ -1,4 +1,4 @@
-const CACHE_NAME = 'harira-quest-v4.8'; 
+const CACHE_NAME = 'harira-quest-v4.9'; 
 const ASSETS_TO_CACHE = [
   '/',
   'index.html',
@@ -39,9 +39,12 @@ const ASSETS_TO_CACHE = [
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      console.log('Azul is stocking the pantry...');
-      // addAll is all-or-nothing. If one filename is wrong, none will cache.
-      return cache.addAll(ASSETS_TO_CACHE);
+      return cache.addAll(ASSETS_TO_CACHE).then(() => {
+          // Notify the UI that we are ready for airplane mode
+          self.clients.matchAll().then(clients => {
+              clients.forEach(client => client.postMessage({type: 'CACHE_COMPLETE'}));
+          });
+      });
     })
   );
   self.skipWaiting();
@@ -49,38 +52,26 @@ self.addEventListener('install', event => {
 
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(cacheNames =>
-      Promise.all(
-        cacheNames.map(cache => {
-          if (cache !== CACHE_NAME) {
-            return caches.delete(cache);
-          }
-        })
-      )
-    )
+    caches.keys().then(keys => Promise.all(
+      keys.map(key => key !== CACHE_NAME && caches.delete(key))
+    ))
   );
   return self.clients.claim();
 });
 
 self.addEventListener('fetch', event => {
-  // Special handling for video/audio to bypass iOS Range Request issues
-  const isMedia = event.request.url.match(/\.(mp4|mp3)$/);
-  
-  if (isMedia) {
+  // Fix for iOS Video/Audio Range Requests
+  if (event.request.url.match(/\.(mp4|mp3)$/)) {
     event.respondWith(
       caches.match(event.request).then(response => {
-        return response || fetch(event.request);
+        return response || fetch(event.request).then(res => {
+          return res; // Fallback to network
+        });
       })
-    );
-  } else if (event.request.mode === 'navigate') {
-    event.respondWith(
-      fetch(event.request).catch(() => 
-        caches.match(event.request) || caches.match('index.html')
-      )
     );
   } else {
     event.respondWith(
-      caches.match(event.request).then(response => response || fetch(event.request))
+      caches.match(event.request).then(res => res || fetch(event.request))
     );
   }
 });
