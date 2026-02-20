@@ -6,7 +6,23 @@
     <title>Harira Harvest | Maximum Reality</title>
     <style>
         :root { --neon-green: #39FF14; --neon-cyan: #00FFFF; --neon-pink: #FF00FF; }
-        body { margin: 0; background: #000; overflow: hidden; font-family: monospace; }
+       body {
+    margin: 0;
+    padding: 0;
+    background: url('cyber-kitchen-bg.PNG') no-repeat center center fixed;
+    background-size: cover;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Add a dark overlay so your game pieces (bowl/ladle) pop */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4); /* Adjust darkness here */
+    z-index: -1;
+}
         #ui { 
             position: absolute; top: 65px; left: 20px; 
             color: var(--neon-cyan); font-size: 18px; z-index: 10; 
@@ -14,6 +30,8 @@
         }
         .checklist { color: var(--neon-green); margin-top: 5px; }
         canvas { position: absolute; inset: 0; }
+
+
     </style>
 </head>
 <body>
@@ -125,7 +143,9 @@ function checkWin() {
 
 window.addEventListener('touchmove', e => {
     e.preventDefault();
-    chefX = e.touches[0].clientX;
+    // Clamping chefX so Mochkil doesn't leave the screen edges
+    let touchX = e.touches[0].clientX;
+    chefX = Math.max(60, Math.min(touchX, canvas.width - 60));
 }, {passive: false});
 
 function loop() {
@@ -137,14 +157,35 @@ function loop() {
     items.forEach((item, index) => {
         item.update();
         item.draw();
+        
+        // Check for catch with Haptic Feedback
+        if (item.y > canvas.height - 150 && item.y < canvas.height - 100 &&
+            item.x > chefX - 60 && item.x < chefX + 60) {
+            
+            recipe[item.type].count = Math.min(recipe[item.type].count + 1, recipe[item.type].target);
+            updateUI();
+            
+            // Trigger haptic tap on catch
+            if (navigator.vibrate) navigator.vibrate(10); 
+            
+            items.splice(index, 1);
+            checkWin();
+        }
+
         if (item.y > canvas.height + 100) items.splice(index, 1);
     });
 
+    // Draw Mochkil with a Neon "Hacker" Glow
     if (sprites.mochkil.complete) {
+        ctx.shadowBlur = 20;
+        ctx.shadowColor = 'var(--neon-cyan)';
         ctx.drawImage(sprites.mochkil, chefX - 60, canvas.height - 160, 120, 120);
+        ctx.shadowBlur = 0;
     }
 
     requestAnimationFrame(loop);
+}
+
 }
 loop();
 </script>
