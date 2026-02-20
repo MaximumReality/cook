@@ -29,25 +29,27 @@
             text-shadow: 2px 2px #000;
         }
         
-        /* Grounded Bowl using the 'vh' fix */
-        #target-bowl {
-            position: absolute;
-            top: 75vh; 
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 320px; 
-            z-index: 10;
-        }
+        /* Updated CSS for Layering */
+#target-bowl {
+    position: absolute;
+    top: 75vh; 
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 320px; 
+    z-index: 30; /* Higher than the garlic */
+}
 
-        /* Oscillating Garlic */
-        #garlic-container {
-            position: absolute;
-            top: 150px;
-            left: 0;
-            width: 100%;
-            height: 100px;
-            z-index: 20;
-        }
+#garlic-container {
+    position: absolute;
+    top: 150px;
+    left: 0;
+    width: 100%;
+    height: 100px;
+    z-index: 20; /* Lower than the bowl */
+}
+
+
+
 
         #garlic-claw {
             position: absolute;
@@ -62,14 +64,16 @@
             to { left: 85%; }
         }
 
-        /* Drop Animation */
-        .dropping {
-            animation: none !important; /* Stop horizontal move */
-            transition: top 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.6s;
-            top: 70vh !important;
-            transform: translateX(-50%) scale(0.6) !important;
-            opacity: 0;
-        }
+        /* Updated Drop Animation */
+.dropping {
+    animation: none !important; 
+    transition: top 0.6s cubic-bezier(0.47, 0, 0.74, 0.71), 
+                transform 0.6s, 
+                opacity 0.4s ease-in 0.2s; /* Fades out halfway through the drop */
+    top: 60vh !important; /* Ends behind the top edge of the bowl */
+    transform: translateX(-50%) scale(0.5) !important;
+    opacity: 0;
+}
 
         #next-btn {
             display: none; position: absolute; top: 50%; left: 50%;
@@ -113,38 +117,42 @@
     const nextBtn = document.getElementById('next-btn');
 
     function dropGarlic() {
-        if (claw.classList.contains('dropping')) return;
+    if (claw.classList.contains('dropping')) return;
 
-        // Visual and Audio feedback
-        claw.classList.add('dropping');
-        
-        const currentLeft = window.getComputedStyle(claw).left;
-        claw.style.left = currentLeft;
-        
-        const clawRect = claw.getBoundingClientRect();
-        const bowlRect = bowl.getBoundingClientRect();
+    const currentLeft = window.getComputedStyle(claw).left;
+    claw.style.left = currentLeft;
+    claw.classList.add('dropping');
+    
+    const clawRect = claw.getBoundingClientRect();
+    const bowlRect = bowl.getBoundingClientRect();
 
-        setTimeout(() => {
-            const finalLeft = clawRect.left + (clawRect.width / 2);
+    setTimeout(() => {
+        const finalLeft = clawRect.left + (clawRect.width / 2);
+        
+        // Hit Detection
+        if (finalLeft > bowlRect.left && finalLeft < bowlRect.right) {
+            caught++;
+            scoreText.innerText = caught;
+            if (navigator.vibrate) navigator.vibrate([15, 10, 15]);
+        }
+
+        if (caught >= 3) {
+            nextBtn.style.display = 'block';
+            claw.style.display = 'none';
+        } else {
+            // Instant Reset
+            claw.style.transition = "none"; // Remove transition for instant reset
+            claw.classList.remove('dropping');
+            claw.style.top = "0px";
+            claw.style.opacity = "1";
             
-            if (finalLeft > bowlRect.left && finalLeft < bowlRect.right) {
-                caught++;
-                scoreText.innerText = caught;
-                // Double vibrate for a "Splash" feel
-                if (navigator.vibrate) navigator.vibrate([15, 10, 15]);
-            }
+            // Force a reflow to restart the horizontal animation
+            void claw.offsetWidth; 
+            claw.style.transition = ""; 
+        }
+    }, 600);
+}
 
-            if (caught >= 3) {
-                nextBtn.style.display = 'block';
-                claw.style.display = 'none';
-                // Success sound could go here!
-            } else {
-                claw.classList.remove('dropping');
-                claw.style.top = "0px";
-                claw.style.opacity = "1";
-            }
-        }, 600);
-    }
 </script>
 
 </body>
