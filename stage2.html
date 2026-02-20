@@ -11,6 +11,7 @@
         #ui-text { position: absolute; top: 65px; left: 20px; z-index: 50; pointer-events: none; }
         .stat { color: var(--neon-blue); font-size: 20px; font-weight: bold; }
 
+        /* MAIN CONTAINER */
         #pot-stage {
             position: absolute; top: 55%; left: 50%;
             transform: translate(-50%, -50%);
@@ -18,18 +19,15 @@
         }
 
         /* 1. BACK OF THE BOWL */
-        #bowl-under {
-            position: absolute; inset: 0;
-            width: 100%; z-index: 1;
-        }
+        #bowl-under { position: absolute; inset: 0; width: 100%; z-index: 1; }
 
-        /* 2. THE SOUP CONTAINER (The Mask) */
+        /* 2. THE SOUP ACTION ZONE (The Mask) */
         #soup-container {
             position: absolute;
             top: 20%; left: 10%; 
-            width: 80%; height: 45%; /* Adjusted to fit bowl opening */
+            width: 80%; height: 45%; 
             border-radius: 50%;
-            overflow: hidden;
+            overflow: hidden; /* This keeps the soup and ladle inside the bowl */
             z-index: 2;
         }
 
@@ -38,13 +36,15 @@
             background: radial-gradient(circle, #8b4513, #4a3219);
         }
 
-        /* 3. THE LADLE */
+        /* 3. THE LADLE (Now inside the container) */
         #ladle-img {
             position: absolute;
-            width: 120px; 
+            width: 100px; /* Sized down slightly for the bowl */
             z-index: 3;
             pointer-events: none;
-            top: 0; left: 0; /* Important for JS math */
+            /* Start it in the middle */
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
         }
 
         /* 4. FRONT RIM OVERLAY */
@@ -52,8 +52,7 @@
             position: absolute; inset: 0;
             width: 100%; z-index: 4; 
             pointer-events: none;
-            /* Only show the front bottom half of the bowl image */
-            clip-path: inset(40% 0 0 0); 
+            clip-path: inset(45% 0 0 0); /* Shows only the front rim */
         }
 
         #azul-hud {
@@ -74,9 +73,7 @@
 </head>
 <body>
 
-<div id="ui-text">
-    <div class="stat">DENSITY: <span id="density-val">0</span>%</div>
-</div>
+<div id="ui-text"><div class="stat">DENSITY: <span id="density-val">0</span>%</div></div>
 
 <div id="azul-hud">
     <img src="azul-insight.png" style="width: 80%; margin-top:5px;">
@@ -85,12 +82,10 @@
 
 <div id="pot-stage">
     <img src="bowl.png" id="bowl-under">
-
     <div id="soup-container">
         <div id="harira-liquid"></div>
         <img src="ladle.png" id="ladle-img">
     </div>
-
     <img src="bowl.png" id="bowl-over">
 </div>
 
@@ -101,7 +96,7 @@
     music.loop = true;
 
     const ladle = document.getElementById('ladle-img');
-    const pot = document.getElementById('pot-stage'); // Corrected ID
+    const soupZone = document.getElementById('soup-container');
     const densityVal = document.getElementById('density-val');
     const azulMsg = document.getElementById('azul-msg');
     const nextBtn = document.getElementById('next-btn');
@@ -117,23 +112,20 @@
         e.preventDefault();
         
         const touch = e.touches[0];
-        const rect = pot.getBoundingClientRect();
+        const rect = soupZone.getBoundingClientRect();
         
-        // Center of the pot for rotation math
-        const centerX = rect.left + rect.width / 2;
-        const centerY = rect.top + rect.height / 2;
-
-        // Position Ladle relative to the container
-        // We subtract 60 (half of ladle width 120) to center it on finger
-        const lx = touch.clientX - rect.left - 60;
-        const ly = touch.clientY - rect.top - 60;
+        // 1. Position Ladle relative to the SOUP ZONE
+        const lx = touch.clientX - rect.left - 50; // 50 is half ladle width
+        const ly = touch.clientY - rect.top - 50;
         
         ladle.style.left = lx + 'px';
         ladle.style.top = ly + 'px';
 
-        // Calculate Rotation
-        const dx = touch.clientX - centerX;
-        const dy = touch.clientY - centerY;
+        // 2. Calculate Rotation (for density)
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const dx = lx + 50 - centerX;
+        const dy = ly + 50 - centerY;
         const angle = Math.atan2(dy, dx);
         
         if (lastAngle !== null) {
@@ -145,7 +137,7 @@
             const progress = Math.min((totalRotation / (Math.PI * 15)) * 100, 100);
             
             densityVal.innerText = Math.floor(progress);
-            // Rotates the ladle to follow the circular path
+            // Visual tilt of the ladle head
             ladle.style.transform = `rotate(${angle + 1.5}rad)`; 
 
             if (progress >= 100) {
