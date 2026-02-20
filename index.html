@@ -1,1 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Snack Attack: Harira Edition</title>
+    <style>
+        :root {
+            --neon-pink: #FF00FF;
+            --neon-cyan: #00FFFF;
+            --neon-green: #39FF14;
+        }
+        body {
+            margin: 0;
+            background: #000;
+            color: white;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+            overflow: hidden;
+        }
+        h1 {
+            font-size: 2.5rem;
+            color: var(--neon-pink);
+            text-shadow: 0 0 10px var(--neon-pink), 2px 2px #000;
+            margin-bottom: 10px;
+        }
+        .mission-box {
+            border: 2px solid var(--neon-cyan);
+            padding: 20px;
+            background: rgba(0, 255, 255, 0.05);
+            box-shadow: 0 0 15px var(--neon-cyan);
+            max-width: 80%;
+            border-radius: 15px;
+        }
+        .start-btn {
+            margin-top: 30px;
+            padding: 20px 40px;
+            background: var(--neon-green);
+            color: #000;
+            border: none;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 0 20px var(--neon-green);
+        }
+        .start-btn:active { transform: scale(0.95); }
+        .backstory { font-size: 0.9rem; color: var(--neon-cyan); line-height: 1.4; }
+    </style>
+</head>
+<body>
+
+    <h1>HARIRA QUEST</h1>
+    
+    <div class="mission-box">
+        <p class="backstory">
+            REALITY CHECK: Mochkil is out of lentils. <br>
+            Azul has calculated a 99% flavor deficit. <br><br>
+            STAGE 1: COLLECT THE INGREDIENTS <br>
+            STAGE 2: THE MASH <br>
+            STAGE 3: THE SPICE <br>
+            STAGE 4: THE SERVE
+        </p>
+    </div>
+
+    <button class="start-btn" onclick="window.location.href='stage1.html'">INITIALIZE COOKING</button>
+
+</body>
+</html>
 
