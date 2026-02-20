@@ -6,47 +6,33 @@
     <title>Harira Harvest | Maximum Reality</title>
     <style>
         :root { --neon-green: #39FF14; --neon-cyan: #00FFFF; --neon-pink: #FF00FF; }
+        body { margin: 0; padding: 0; background: #000; overflow: hidden; }
         
-        body {
-            margin: 0; padding: 0;
+        #bg-container {
+            position: fixed; inset: 0;
             background: url('cyber-kitchen-bg.PNG') no-repeat center center fixed;
             background-size: cover;
-            height: 100vh;
-            overflow: hidden;
-            background-color: #000;
+            z-index: -1;
         }
 
-        body::before {
-            content: "";
-            position: fixed;
-            inset: 0;
+        #bg-container::before {
+            content: ""; position: absolute; inset: 0;
             background: rgba(0, 0, 0, 0.6); 
-            z-index: 0; 
         }
 
         #ui { 
-            position: absolute; 
-            top: 85px; 
-            left: 20px; 
-            color: var(--neon-cyan); 
-            font-size: 18px; 
-            z-index: 100; 
-            text-shadow: 2px 2px #000; 
-            pointer-events: none;
+            position: absolute; top: 85px; left: 20px; 
+            color: var(--neon-cyan); font-size: 18px; z-index: 100; 
+            text-shadow: 2px 2px #000; pointer-events: none;
             font-family: 'Courier New', monospace;
         }
-
         .checklist { color: var(--neon-green); margin-top: 5px; }
-
-        canvas { 
-            position: absolute; 
-            inset: 0; 
-            z-index: 10; 
-        }
+        canvas { position: absolute; inset: 0; z-index: 10; }
     </style>
 </head>
 <body>
 
+<div id="bg-container"></div>
 <div id="ui">
     RECIPE: HARIRA BASE<br>
     <div id="check-list" class="checklist">
@@ -61,7 +47,6 @@
 <script>
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
-
 const music = new Audio('that-8-bit-music.mp3'); 
 music.loop = true;
 
@@ -89,28 +74,33 @@ const recipe = {
 };
 
 const sprites = {
-    chickpea: new Image(),
-    lentil: new Image(),
-    garlic: new Image(),
-    mochkil: new Image()
+    chickpea: new Image(), lentil: new Image(),
+    garlic: new Image(), mochkil: new Image()
 };
 sprites.chickpea.src = 'chickpeas.png';
 sprites.lentil.src = 'lentil.png';
 sprites.garlic.src = 'garlic.png';
 sprites.mochkil.src = 'mochkil-harira.png';
 
+/* MOVEMENT FIX: Added the touch listener back */
+window.addEventListener('touchmove', e => {
+    if (!gameActive) return;
+    e.preventDefault();
+    let touchX = e.touches[0].clientX;
+    chefX = Math.max(60, Math.min(touchX, canvas.width - 60));
+}, {passive: false});
+
 class Ingredient {
     constructor() {
         let rand = Math.random();
-        // Adding the Pest (🪳) into the spawn pool
-        if (rand < 0.1) this.type = 'pest'; 
+        if (rand < 0.12) this.type = 'pest'; 
         else if (rand < 0.6) this.type = 'lentil';
         else if (rand < 0.8) this.type = 'chickpea';
         else this.type = 'garlic';
 
         this.x = Math.random() * (canvas.width - 60) + 30;
         this.y = -50;
-        this.speed = 4 + Math.random() * 5; // Slightly faster for more challenge
+        this.speed = 4 + Math.random() * 5;
     }
     update() { this.y += this.speed; }
     draw() {
@@ -129,6 +119,23 @@ class Ingredient {
     }
 }
 
+function updateUI() {
+    document.getElementById('check-list').innerHTML = `
+        - Chickpeas: ${recipe.chickpea.count}/${recipe.chickpea.target}<br>
+        - Lentils: ${recipe.lentil.count}/${recipe.lentil.target}<br>
+        - Garlic Claws: ${recipe.garlic.count}/${recipe.garlic.target}
+    `;
+}
+
+function checkWin() {
+    if (recipe.chickpea.count >= recipe.chickpea.target &&
+        recipe.lentil.count >= recipe.lentil.target &&
+        recipe.garlic.count >= recipe.garlic.target) {
+        gameActive = false;
+        setTimeout(() => { window.location.href = 'stage2.html'; }, 500);
+    }
+}
+
 function loop() {
     if (!gameActive) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -143,17 +150,15 @@ function loop() {
         item.update();
         item.draw();
         
-        // TIGHTER COLLISION: Must hit the top-center (the bowl/hat area)
-        if (item.y > canvas.height - chefHeight - 20 && item.y < canvas.height - chefHeight + 40 &&
-            item.x > chefX - 40 && item.x < chefX + 40) {
+        // TIGHTER COLLISION: Must hit the top-center 
+        if (item.y > canvas.height - chefHeight - 20 && item.y < canvas.height - chefHeight + 60 &&
+            item.x > chefX - 45 && item.x < chefX + 45) {
             
             if (item.type === 'pest') {
-                // RESET THE RECIPE!
                 recipe.chickpea.count = 0;
                 recipe.lentil.count = 0;
                 recipe.garlic.count = 0;
                 if (navigator.vibrate) navigator.vibrate([200, 100, 200]); 
-                alert("CONTAMINATION! MOCHKIL MUST START OVER 🪳");
             } else {
                 recipe[item.type].count = Math.min(recipe[item.type].count + 1, recipe[item.type].target);
                 if (navigator.vibrate) navigator.vibrate(15); 
@@ -171,8 +176,6 @@ function loop() {
     }
     requestAnimationFrame(loop);
 }
-
-
 loop();
 </script>
 </body>
