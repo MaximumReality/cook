@@ -7,11 +7,10 @@
     <style>
         :root { --neon-green: #39FF14; --neon-cyan: #00FFFF; --neon-pink: #FF00FF; }
         body { margin: 0; background: #000; overflow: hidden; font-family: monospace; }
-        
         #ui { 
             position: absolute; top: 65px; left: 20px; 
             color: var(--neon-cyan); font-size: 18px; z-index: 10; 
-            text-shadow: 2px 2px #000;
+            text-shadow: 2px 2px #000; pointer-events: none;
         }
         .checklist { color: var(--neon-green); margin-top: 5px; }
         canvas { position: absolute; inset: 0; }
@@ -36,68 +35,94 @@ const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-// Game State
 let chefX = canvas.width / 2;
 let items = [];
 let gameActive = true;
 
 const recipe = {
-    chickpea: { count: 0, target: 5, color: '#f5deb3', label: 'Chickpeas' },
-    lentil: { count: 0, target: 5, color: '#a52a2a', label: 'Lentils' },
-    garlic: { count: 0, target: 2, color: '#ffffff', label: 'Garlic Claws' }
+    chickpea: { count: 0, target: 5, color: '#f5deb3' },
+    lentil: { count: 0, target: 5, color: '#a52a2a' },
+    garlic: { count: 0, target: 2, color: '#ffffff' }
 };
 
-const ingredientTypes = ['chickpea', 'lentil', 'garlic'];
+/* ASSETS */
+const music = new Audio('8-bit-music.mp3'); 
+music.loop = true;
+
+const sprites = {
+    chickpea: new Image(),
+    lentil: new Image(),
+    garlic: new Image(),
+    mochkil: new Image()
+};
+sprites.chickpea.src = 'chickpeas.png';
+sprites.lentil.src = 'lentil.png';
+sprites.garlic.src = 'garlic.png';
+sprites.mochkil.src = 'mochkil-harira.png';
+
+window.addEventListener('touchstart', () => { if (music.paused) music.play(); }, { once: true });
 
 class Ingredient {
     constructor() {
-        this.type = ingredientTypes[Math.floor(Math.random() * ingredientTypes.length)];
+        // LENTIL FLOOD LOGIC: 60% Lentils, 20% Chickpeas, 20% Garlic
+        let rand = Math.random();
+        if (rand < 0.6) this.type = 'lentil';
+        else if (rand < 0.8) this.type = 'chickpea';
+        else this.type = 'garlic';
+
         this.x = Math.random() * (canvas.width - 40) + 20;
         this.y = -50;
         this.speed = 3 + Math.random() * 3;
     }
     update() {
         this.y += this.speed;
-        // Collision with Chef (Bottom of screen)
         if (this.y > canvas.height - 150 && this.y < canvas.height - 100 &&
             this.x > chefX - 60 && this.x < chefX + 60) {
-            
             recipe[this.type].count = Math.min(recipe[this.type].count + 1, recipe[this.type].target);
             updateUI();
-            this.y = canvas.height + 100; // Remove item
+            this.y = canvas.height + 500;
             checkWin();
         }
     }
     draw() {
-        ctx.fillStyle = recipe[this.type].color;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, 15, 0, Math.PI * 2);
-        ctx.fill();
-        // Add a neon glow
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = recipe[this.type].color;
+        const img = sprites[this.type];
+        if (img.complete) {
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = recipe[this.type].color;
+            ctx.drawImage(img, this.x - 25, this.y - 25, 50, 50);
+            ctx.shadowBlur = 0;
+        }
     }
 }
 
 function updateUI() {
-    const list = document.getElementById('check-list');
-    list.innerHTML = `
+    document.getElementById('check-list').innerHTML = `
         - Chickpeas: ${recipe.chickpea.count}/${recipe.chickpea.target}<br>
         - Lentils: ${recipe.lentil.count}/${recipe.lentil.target}<br>
         - Garlic Claws: ${recipe.garlic.count}/${recipe.garlic.target}
     `;
 }
 
+function triggerLevelExit() {
+    gameActive = false;
+    let glitchCount = 0;
+    const glitchInterval = setInterval(() => {
+        canvas.style.filter = `hue-rotate(${Math.random() * 360}deg) invert(${Math.random() > 0.5 ? 1 : 0}) blur(2px)`;
+        if (++glitchCount > 12) {
+            clearInterval(glitchInterval);
+            window.location.href = 'stage2.html';
+        }
+    }, 60);
+}
+
 function checkWin() {
     if (recipe.chickpea.count >= recipe.chickpea.target &&
         recipe.lentil.count >= recipe.lentil.target &&
         recipe.garlic.count >= recipe.garlic.target) {
-        gameActive = false;
-        setTimeout(() => { window.location.href = 'stage2.html'; }, 500);
+        triggerLevelExit();
     }
 }
 
-// Input Handling
 window.addEventListener('touchmove', e => {
     e.preventDefault();
     chefX = e.touches[0].clientX;
@@ -107,21 +132,20 @@ function loop() {
     if (!gameActive) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    if (Math.random() < 0.03) items.push(new Ingredient());
+    if (Math.random() < 0.04) items.push(new Ingredient());
     
     items.forEach((item, index) => {
         item.update();
         item.draw();
-        if (item.y > canvas.height) items.splice(index, 1);
+        if (item.y > canvas.height + 100) items.splice(index, 1);
     });
 
-    // Draw Chef Placeholder (Swap with mochkil_happy.png later)
-    ctx.fillStyle = '#FF00FF';
-    ctx.fillRect(chefX - 50, canvas.height - 130, 100, 20); 
+    if (sprites.mochkil.complete) {
+        ctx.drawImage(sprites.mochkil, chefX - 60, canvas.height - 160, 120, 120);
+    }
 
     requestAnimationFrame(loop);
 }
-
 loop();
 </script>
 </body>
