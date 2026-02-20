@@ -70,9 +70,29 @@
     transition: top 0.6s cubic-bezier(0.47, 0, 0.74, 0.71), 
                 transform 0.6s, 
                 opacity 0.4s ease-in 0.2s; /* Fades out halfway through the drop */
-    top: 60vh !important; /* Ends behind the top edge of the bowl */
+    top: 68vh !important; /* Ends behind the top edge of the bowl */
     transform: translateX(-50%) scale(0.5) !important;
     opacity: 0;
+}
+
+        .ripple {
+    position: absolute;
+    top: 68vh; /* Matches the soup level */
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 10px;
+    border: 3px solid var(--neon-cyan);
+    border-radius: 50%; /* Oval shape to match bowl perspective */
+    pointer-events: none;
+    z-index: 25; /* Between garlic and bowl rim */
+    box-shadow: 0 0 15px var(--neon-cyan);
+    animation: ripple-out 0.6s ease-out forwards;
+}
+
+@keyframes ripple-out {
+    0% { width: 20px; height: 10px; opacity: 1; border-width: 4px; }
+    100% { width: 280px; height: 120px; opacity: 0; border-width: 1px; }
 }
 
         #next-btn {
