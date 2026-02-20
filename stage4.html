@@ -9,7 +9,6 @@
         
         body { 
             margin: 0; 
-            /* ADDED YOUR BACKGROUND */
             background: url('cyber-kitchen-bg.PNG') no-repeat center center fixed;
             background-size: cover;
             overflow: hidden; 
@@ -19,80 +18,67 @@
             background-color: #000;
         }
 
-        /* Dark overlay to make the neon sprites pop */
         body::before {
             content: ""; position: fixed; inset: 0;
-            background: rgba(0, 0, 0, 0.5); z-index: 0;
+            background: rgba(0, 0, 0, 0.4); z-index: 0;
         }
         
-        #ui { 
+        #ui { position: absolute; top: 85px; width: 100%; text-align: center; z-index: 100; }
+        .count-box { font-size: 22px; color: var(--neon-cyan); text-shadow: 0 0 10px var(--neon-cyan), 2px 2px #000; }
+
+        /* The Target: Floating Azul */
+        #azul-container {
             position: absolute; 
-            top: 85px; /* Clear Dynamic Island */
-            width: 100%; 
-            text-align: center; 
-            z-index: 100; 
-        }
-        
-        .count-box { 
-            font-size: 22px; 
-            color: var(--neon-cyan); 
-            text-shadow: 0 0 10px var(--neon-cyan), 2px 2px #000; 
+            top: 15vh; 
+            left: 50%;
+            transform: translateX(-50%); 
+            width: 140px;
+            transition: left 0.9s ease-in-out;
+            z-index: 10;
         }
 
-        /* Grounded Customer Sprite */
-#customer-container {
-    position: absolute; 
-    /* Lowered from 25vh to 45vh to hit the floor */
-    top: 35vh; 
-    left: 50%;
-    transform: translateX(-50%); 
-    width: 220px; /* Made him slightly larger since he's 'closer' now */
-    transition: left 1.2s ease-in-out;
-    z-index: 10;
-}
-
-        
-        #customer-img { 
-            width: 100%; 
-            filter: drop-shadow(0 0 15px var(--neon-pink)); 
+        /* Grounded Chef Mochkil (Atmospheric) */
+        #mochkil-grounded {
+            position: absolute; 
+            top: 35vh; 
+            left: 50%;
+            transform: translateX(-50%); 
+            width: 240px;
+            z-index: 5;
+            opacity: 0.8;
+            pointer-events: none;
         }
 
-        /* The Updated Full Bowl */
+        /* The Full Bowl */
         #bowl-projectile {
             position: absolute; 
             bottom: 60px; 
             left: 50%;
             transform: translateX(-50%); 
-            width: 180px; /* Slightly larger for the 'close' look */
+            width: 180px; 
             z-index: 50; 
-            transition: bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
-                        transform 0.5s, 
-                        width 0.5s;
-            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
+            transition: bottom 0.4s ease-in, transform 0.4s, width 0.4s;
         }
 
         #feedback {
-            position: absolute; 
-            top: 45%; 
-            width: 100%; 
-            text-align: center;
-            font-size: 32px; 
-            font-weight: bold; 
-            display: none; 
-            pointer-events: none;
-            z-index: 200;
-            text-shadow: 0 0 20px #000;
+            position: absolute; top: 45%; width: 100%; text-align: center;
+            font-size: 32px; font-weight: bold; display: none; z-index: 200;
+            text-shadow: 2px 2px #000;
         }
     </style>
 </head>
 <body>
 
 <div id="ui">
-    <div class="count-box">CUSTOMERS FED: <span id="fed-count">0</span>/5</div>
+    <div class="count-box">QUANTUM FEED: <span id="fed-count">0</span>/5</div>
 </div>
 
-<div id="customer-container">
-    <img src="mochkil-harira.png" id="customer-img">
+<div id="azul-container">
+    <img src="azul-hacker.png" style="width: 100%; filter: drop-shadow(0 0 10px var(--neon-cyan));">
+</div>
+
+<div id="mochkil-grounded">
+    <img src="mochkil-harira.png" style="width: 100%;">
 </div>
 
 <div id="feedback">PERFECT SERVE!</div>
@@ -104,7 +90,7 @@
     music.loop = true;
 
     const bowl = document.getElementById('bowl-projectile');
-    const customer = document.getElementById('customer-container');
+    const target = document.getElementById('azul-container');
     const fedCountEl = document.getElementById('fed-count');
     const feedback = document.getElementById('feedback');
 
@@ -112,63 +98,51 @@
     let isFlicking = false;
     let startY, startTime;
 
-    // iPhone Touch Handling
     window.addEventListener('touchstart', (e) => {
         if (music.paused) music.play().catch(e => {});
         if (isFlicking) return;
         startY = e.touches[0].clientY;
         startTime = Date.now();
-    }, {passive: false});
+    });
 
     window.addEventListener('touchend', (e) => {
         if (isFlicking) return;
-        const endY = e.changedTouches[0].clientY;
-        const distance = startY - endY;
+        const distance = startY - e.changedTouches[0].clientY;
         const duration = Date.now() - startTime;
 
-        // Velocity check: quick swipe up
-        if (distance > 100 && duration < 300) {
-            flickBowl();
-        }
+        if (distance > 100 && duration < 300) flickBowl();
     });
 
     function flickBowl() {
         isFlicking = true;
-        // Bowl shrinks as it moves 'away' into the kitchen
-        bowl.style.bottom = "60vh";
-        bowl.style.width = "80px"; 
-        bowl.style.transform = "translateX(-50%) rotate(10deg)";
+        // The bowl travels deep to Azul at 15vh
+        bowl.style.bottom = "75vh";
+        bowl.style.width = "70px"; 
+        bowl.style.transform = "translateX(-50%) rotate(20deg)";
 
         setTimeout(checkHit, 400);
     }
 
     function checkHit() {
         const bRect = bowl.getBoundingClientRect();
-        const cRect = customer.getBoundingClientRect();
+        const tRect = target.getBoundingClientRect();
 
-        // Hit Detection
-        if (bRect.left < cRect.right && bRect.right > cRect.left) {
+        if (bRect.left < tRect.right && bRect.right > tRect.left) {
             fed++;
             fedCountEl.innerText = fed;
-            showFeedback("MICHELIN STAR!", "var(--neon-green)");
-            if (navigator.vibrate) navigator.vibrate(100);
-            
-            if (fed >= 5) {
-                setTimeout(() => { window.location.href = 'victory.html'; }, 1000);
-            }
+            showFeedback("QUANTUM CATCH!", "var(--neon-cyan)");
+            if (fed >= 5) setTimeout(() => { window.location.href = 'victory.html'; }, 1000);
         } else {
-            showFeedback("MISSED THE TABLE!", "red");
-            if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
+            showFeedback("CALCULATION ERROR!", "red");
         }
 
-        // Reset bowl to bottom of screen
         setTimeout(() => {
             bowl.style.transition = "none";
             bowl.style.bottom = "60px";
             bowl.style.width = "180px";
             bowl.style.transform = "translateX(-50%)";
             setTimeout(() => { 
-                bowl.style.transition = "bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), transform 0.5s, width 0.5s";
+                bowl.style.transition = "bottom 0.4s ease-in, transform 0.4s, width 0.4s";
                 isFlicking = false; 
             }, 50);
         }, 600);
@@ -181,12 +155,11 @@
         setTimeout(() => { feedback.style.display = 'none'; }, 800);
     }
 
-    // Faster moving customer for the Pro Max
+    // Azul's movement pattern
     setInterval(() => {
         const newX = Math.random() * 70 + 15;
-        customer.style.left = newX + '%';
-    }, 1200);
-
+        target.style.left = newX + '%';
+    }, 1000);
 </script>
 </body>
 </html>
