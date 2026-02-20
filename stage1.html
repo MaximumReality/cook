@@ -16,7 +16,6 @@
             background-color: #000;
         }
 
-        /* TRANSLUCENT BLACK OVERLAY */
         body::before {
             content: "";
             position: fixed;
@@ -63,21 +62,15 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-/* MUSIC FIX FOR IOS */
 const music = new Audio('that-8-bit-music.mp3'); 
 music.loop = true;
-music.preload = 'auto';
 
-// Force play on first touch anywhere
 const startMusic = () => {
-    music.play().catch(e => console.log("Audio waiting for interaction"));
+    music.play().catch(e => {});
     window.removeEventListener('touchstart', startMusic);
-    window.removeEventListener('click', startMusic);
 };
 window.addEventListener('touchstart', startMusic);
-window.addEventListener('click', startMusic);
 
-/* GAME LOGIC */
 function resize() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -149,14 +142,6 @@ function triggerLevelExit() {
     }, 60);
 }
 
-function checkWin() {
-    if (recipe.chickpea.count >= recipe.chickpea.target &&
-        recipe.lentil.count >= recipe.lentil.target &&
-        recipe.garlic.count >= recipe.garlic.target) {
-        triggerLevelExit();
-    }
-}
-
 window.addEventListener('touchmove', e => {
     e.preventDefault();
     let touchX = e.touches[0].clientX;
@@ -169,26 +154,43 @@ function loop() {
 
     if (Math.random() < 0.05) items.push(new Ingredient());
     
+    // Calculate Mochkil's aspect ratio height
+    const chefWidth = 140; // Slightly wider for presence
+    const scale = chefWidth / sprites.mochkil.width;
+    const chefHeight = sprites.mochkil.height * scale;
+
     items.forEach((item, index) => {
         item.update();
         item.draw();
         
-        if (item.y > canvas.height - 180 && item.y < canvas.height - 80 &&
-            item.x > chefX - 70 && item.x < chefX + 70) {
+        // Collision Detection - Updated to match his real height
+        if (item.y > canvas.height - chefHeight - 40 && item.y < canvas.height - 40 &&
+            item.x > chefX - (chefWidth/2) && item.x < chefX + (chefWidth/2)) {
             
             recipe[item.type].count = Math.min(recipe[item.type].count + 1, recipe[item.type].target);
             updateUI();
             if (navigator.vibrate) navigator.vibrate(15); 
             items.splice(index, 1);
-            checkWin();
+            
+            if (recipe.chickpea.count >= recipe.chickpea.target &&
+                recipe.lentil.count >= recipe.lentil.target &&
+                recipe.garlic.count >= recipe.garlic.target) {
+                triggerLevelExit();
+            }
         }
         if (item.y > canvas.height + 100) items.splice(index, 1);
     });
 
     if (sprites.mochkil.complete) {
         ctx.shadowBlur = 20;
-        ctx.shadowColor = 'var(--neon-cyan)';
-        ctx.drawImage(sprites.mochkil, chefX - 60, canvas.height - 180, 120, 120);
+        ctx.shadowColor = '#00FFFF';
+        ctx.drawImage(
+            sprites.mochkil, 
+            chefX - (chefWidth/2), 
+            canvas.height - chefHeight - 20, 
+            chefWidth, 
+            chefHeight
+        );
         ctx.shadowBlur = 0;
     }
     requestAnimationFrame(loop);
