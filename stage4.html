@@ -33,38 +33,36 @@
         #ui { position: absolute; top: 100px; width: 100%; text-align: center; z-index: 100; }
         .count-box { font-size: 22px; color: var(--neon-cyan); text-shadow: 0 0 10px var(--neon-cyan), 2px 2px #000; }
 
-        /* AZUL (Deep Background) */
+        /* AZUL (Target - Floating mid-screen) */
         #azul-container {
             position: absolute; 
-            top: 25vh; 
+            top: 35vh; /* Lowered from 25vh to keep the bowl on screen */
             width: 150px;
             z-index: 5;
             filter: drop-shadow(0 0 10px var(--neon-cyan));
-            transition: left 0.1s linear;
         }
 
-        /* MOCHKIL (Mid-ground) */
+        /* MOCHKIL (Foreground Chef) */
         #mochkil-grounded {
             position: absolute; 
-            top: 48vh; 
-            width: 260px; 
+            top: 55vh; /* Lowered to give Azul space */
+            width: 240px; 
             z-index: 20;
-            transition: left 0.1s linear;
         }
 
-        /* THE BOWL (Foreground) */
+        /* THE BOWL (The Projectile) */
         #bowl-projectile {
             position: absolute; 
-            bottom: 80px; 
+            bottom: 60px; 
             left: 50%;
             transform: translateX(-50%); 
             width: 180px; 
             z-index: 100; 
-            transition: bottom 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s, width 0.4s, opacity 0.2s;
+            transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1), transform 0.4s, width 0.4s, opacity 0.2s;
         }
 
         #feedback {
-            position: absolute; top: 45%; width: 100%; text-align: center;
+            position: absolute; top: 50%; width: 100%; text-align: center;
             font-size: 32px; font-weight: bold; display: none; z-index: 200;
             text-shadow: 2px 2px #000;
         }
@@ -102,28 +100,25 @@
     let isFlicking = false;
     let startY, startTime;
 
-    // Side-to-Side Movement
-    let azulX = 10;
-    let mochkilX = 70;
-    let azulDir = 1.4;    // Azul is agile
-    let mochkilDir = -0.8; // Mochkil is steady
+    // Side-to-Side movement logic
+    let azulX = 20;
+    let mochkilX = 60;
+    let azulDir = 1.2;
+    let mochkilDir = -0.6;
 
     function animate() {
-        // Bounce Azul
         azulX += azulDir;
-        if (azulX > 75 || azulX < 5) azulDir *= -1;
+        if (azulX > 70 || azulX < 10) azulDir *= -1;
         azulEl.style.left = azulX + '%';
 
-        // Bounce Mochkil
         mochkilX += mochkilDir;
-        if (mochkilX > 70 || mochkilX < 5) mochkilDir *= -1;
+        if (mochkilX > 75 || mochkilX < 5) mochkilDir *= -1;
         mochkilEl.style.left = mochkilX + '%';
 
         requestAnimationFrame(animate);
     }
     animate();
 
-    // Flick Detection
     window.addEventListener('touchstart', (e) => {
         if (music.paused) music.play().catch(err => {});
         if (isFlicking) return;
@@ -135,16 +130,15 @@
         if (isFlicking) return;
         const distance = startY - e.changedTouches[0].clientY;
         const duration = Date.now() - startTime;
-        
-        // If it's a fast swipe up
         if (distance > 80 && duration < 300) flickBowl();
     });
 
     function flickBowl() {
         isFlicking = true;
-        bowl.style.bottom = "68vh"; // Toss height
-        bowl.style.width = "70px";  // Shrink for perspective
-        bowl.style.transform = "translateX(-50%) rotate(20deg)";
+        // Flight destination: Hits Azul's new lower position
+        bowl.style.bottom = "58vh"; 
+        bowl.style.width = "75px"; 
+        bowl.style.transform = "translateX(-50%) rotate(15deg)";
         
         if (navigator.vibrate) navigator.vibrate(30);
         setTimeout(checkHit, 400);
@@ -155,8 +149,8 @@
         const aRect = azulEl.getBoundingClientRect();
         const bCenter = bRect.left + (bRect.width / 2);
 
-        // Collision Check with Azul's catch zone
-        if (bCenter > aRect.left && bCenter < aRect.right) {
+        // Wider collision zone for Azul's hacker reflexes
+        if (bCenter > aRect.left - 20 && bCenter < aRect.right + 20) {
             fed++;
             fedCountEl.innerText = fed;
             showFeedback("QUANTUM CATCH!", "var(--neon-cyan)");
@@ -171,16 +165,16 @@
             if (navigator.vibrate) navigator.vibrate(200);
         }
 
-        // Reset the bowl
+        // Clean Reset
         setTimeout(() => {
             bowl.style.opacity = "0";
             setTimeout(() => {
                 bowl.style.transition = "none";
-                bowl.style.bottom = "80px";
+                bowl.style.bottom = "60px";
                 bowl.style.width = "180px";
                 bowl.style.transform = "translateX(-50%)";
-                void bowl.offsetWidth; // Force CSS refresh
-                bowl.style.transition = "bottom 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s, width 0.4s, opacity 0.2s";
+                void bowl.offsetWidth;
+                bowl.style.transition = "bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1), transform 0.4s, width 0.4s, opacity 0.2s";
                 bowl.style.opacity = "1";
                 isFlicking = false;
             }, 200);
