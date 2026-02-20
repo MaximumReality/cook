@@ -81,20 +81,7 @@ video, iframe {
     margin-bottom: env(safe-area-inset-bottom, 20px);
 }
 
-.unmute-btn {
-    position: absolute;
-    bottom: 15px;
-    right: 15px;
-    padding: 8px 16px;
-    background: var(--neon-pink);
-    border: none;
-    border-radius: 8px;
-    color: black;
-    font-weight: bold;
-    cursor: pointer;
-    z-index: 50;
-    box-shadow: 0 0 15px var(--neon-pink);
-}
+
 
 @keyframes pulse {
     0% { box-shadow: 0 0 5px var(--neon-pink); }
@@ -123,51 +110,29 @@ video, iframe {
     <!-- Video / YouTube placeholder -->
 </div>
 
-<button class="unmute-btn" id="unmute-btn" style="display:none;">UNMUTE 🔊</button>
-
-<a href="index.html" class="btn-home">REPLAY MISSION</a>
-
 <script>
 // Detect online/offline
 const isOnline = navigator.onLine;
 const container = document.getElementById('video-wrapper');
-const unmuteBtn = document.getElementById('unmute-btn');
 
 if(isOnline) {
-    // YouTube embed
     container.innerHTML = `
-        <iframe id="yt-player" 
+        <iframe 
             src="https://www.youtube.com/embed/nxcdDiZgwnE?autoplay=1&mute=1&modestbranding=1&rel=0&playsinline=1" 
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
             allowfullscreen>
         </iframe>
     `;
-    unmuteBtn.style.display = 'block';
-    
-    unmuteBtn.addEventListener('click', () => {
-        // PostMessage API to unmute
-        const iframe = document.getElementById('yt-player');
-        iframe.contentWindow.postMessage('{"event":"command","func":"unMute","args":""}', '*');
-    });
 } else {
-    // Offline → local video
     container.innerHTML = `
-        <video id="offline-video" autoplay playsinline controls>
+        <video autoplay playsinline controls>
             <source src="mission-victory.mp4" type="video/mp4">
-            Your browser does not support the video tag.
         </video>
     `;
-    unmuteBtn.style.display = 'block';
-    const videoEl = document.getElementById('offline-video');
-    unmuteBtn.addEventListener('click', () => {
-        videoEl.muted = false;
-        videoEl.play();
-    });
 }
 
 // Vibrate on page load
 if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 300]);
 </script>
-
 </body>
 </html>
