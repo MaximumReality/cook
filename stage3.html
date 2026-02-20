@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>The Spice | Snack Attack</title>
     <style>
-        :root { --neon-cyan: #00FFFF; --neon-pink: #FF00FF; --neon-green: #39FF14; }
+        :root { --neon-cyan: #00FFFF; --neon-pink: #FF00FF; --neon-green: #39FF14; --neon-red: #FF3131; }
         
         body {
             margin: 0; padding: 0;
@@ -25,56 +25,72 @@
             color: var(--neon-cyan); z-index: 100; text-shadow: 2px 2px #000;
         }
         
-        /* The Bowl - Anchored at 75% down the screen */
         #target-bowl {
             position: absolute;
             top: 75vh; left: 50%;
             transform: translate(-50%, -50%);
             width: 320px; 
-            z-index: 50; /* Top layer */
+            z-index: 50;
         }
 
-        /* The Garlic - High enough to see, but low enough for a quick drop */
         #garlic-claw {
             position: absolute;
-            top: 200px; 
+            top: 180px; 
             width: 80px;
             left: 50%;
             transform: translateX(-50%);
-            z-index: 10; /* Behind the bowl when it falls */
-            animation: moveHorizontal 2.5s ease-in-out infinite alternate;
+            z-index: 10;
+            /* Speed up the swing for more challenge */
+            animation: moveHorizontal 1.8s ease-in-out infinite alternate;
         }
 
         @keyframes moveHorizontal {
-            from { left: 15%; }
-            to { left: 85%; }
+            from { left: 20%; }
+            to { left: 80%; }
         }
 
-        /* Dropping Logic - Ends deep enough to hide behind the bowl */
         .dropping {
             animation: none !important;
-            transition: top 0.5s ease-in, opacity 0.3s ease-in 0.2s;
-            top: 75vh !important; 
+            transition: top 0.4s ease-in, opacity 0.2s ease-in 0.2s;
+            top: 70vh !important; 
             opacity: 0;
         }
 
-        /* The Ripple - Oval shaped to fit the bowl surface */
+        /* The Ripple Overlay */
         .ripple {
             position: absolute;
             top: 70vh; left: 50%;
             transform: translate(-50%, -50%);
             width: 20px; height: 10px;
-            border: 3px solid var(--neon-cyan);
+            border: 4px solid var(--neon-cyan);
             border-radius: 50%;
             pointer-events: none;
-            z-index: 40; /* Just under the bowl rim but above the soup */
-            box-shadow: 0 0 15px var(--neon-cyan);
+            z-index: 45;
+            box-shadow: 0 0 20px var(--neon-cyan);
             animation: ripple-out 0.6s ease-out forwards;
         }
 
         @keyframes ripple-out {
             0% { width: 20px; height: 10px; opacity: 1; }
-            100% { width: 250px; height: 100px; opacity: 0; }
+            100% { width: 280px; height: 110px; opacity: 0; }
+        }
+
+        /* MISS Indicator */
+        .miss-text {
+            position: absolute;
+            top: 60vh; left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--neon-red);
+            font-size: 3rem;
+            font-weight: bold;
+            text-shadow: 0 0 15px var(--neon-red);
+            z-index: 200;
+            animation: float-up 0.8s ease-out forwards;
+        }
+
+        @keyframes float-up {
+            0% { transform: translate(-50%, 0); opacity: 1; }
+            100% { transform: translate(-50%, -100px); opacity: 0; }
         }
 
         #next-btn {
@@ -96,7 +112,6 @@
 <button id="next-btn" onclick="window.location.href='stage4.html'">SERVE MEAL</button>
 
 <script>
-    // Audio Unlocker
     const music = new Audio('funny-arcade-game.mp3'); 
     music.loop = true;
     const startMusic = () => {
@@ -109,7 +124,6 @@
     const claw = document.getElementById('garlic-claw');
     const bowl = document.getElementById('target-bowl');
     const scoreText = document.getElementById('score');
-    const nextBtn = document.getElementById('next-btn');
 
     function createRipple() {
         const ripple = document.createElement('div');
@@ -118,10 +132,18 @@
         ripple.addEventListener('animationend', () => ripple.remove());
     }
 
+    function showMiss() {
+        const miss = document.createElement('div');
+        miss.className = 'miss-text';
+        miss.innerText = 'MISS! 🪳';
+        document.body.appendChild(miss);
+        miss.addEventListener('animationend', () => miss.remove());
+        if (navigator.vibrate) navigator.vibrate(200);
+    }
+
     function dropGarlic() {
         if (claw.classList.contains('dropping')) return;
 
-        // Sync position
         const currentLeft = window.getComputedStyle(claw).left;
         claw.style.left = currentLeft;
         claw.classList.add('dropping');
@@ -129,40 +151,39 @@
         const clawRect = claw.getBoundingClientRect();
         const bowlRect = bowl.getBoundingClientRect();
 
-                setTimeout(() => {
+        setTimeout(() => {
             const finalLeft = clawRect.left + (clawRect.width / 2);
             
-            if (finalLeft > bowlRect.left && finalLeft < bowlRect.right) {
+            // TIGHTER CHECK: Reduced the tolerance so you have to hit the middle 50% of the bowl
+            const bowlCenter = bowlRect.left + (bowlRect.width / 2);
+            const tolerance = bowlRect.width * 0.25; // Narrower hit window
+
+            if (finalLeft > bowlCenter - tolerance && finalLeft < bowlCenter + tolerance) {
                 caught++;
                 scoreText.innerText = caught;
                 createRipple(); 
                 if (navigator.vibrate) navigator.vibrate([15, 10, 15]);
-            }
-
-            // CHECK FOR WIN
-            if (caught >= 3) {
-                // Hide the garlic so it doesn't keep swinging
-                claw.style.display = 'none';
-                
-                // Optional: Show the button as a backup
-                nextBtn.style.display = 'block';
-
-                // AUTO-FORWARD after 1.5 seconds of glory
-                setTimeout(() => {
-                    window.location.href = 'stage4.html';
-                }, 1500);
-
             } else {
-                // Reset for next garlic
-                claw.style.transition = "none";
-                claw.classList.remove('dropping');
-                claw.style.top = "200px"; 
-                claw.style.opacity = "1";
-                void claw.offsetWidth; 
-                claw.style.transition = ""; 
+                // Penalty: Lose a point if you miss!
+                caught = Math.max(0, caught - 1);
+                scoreText.innerText = caught;
+                showMiss();
             }
-        }, 500); 
 
+            if (caught >= 3) {
+                claw.style.display = 'none';
+                setTimeout(() => { window.location.href = 'stage4.html'; }, 1200);
+            } else {
+                setTimeout(() => {
+                    claw.style.transition = "none";
+                    claw.classList.remove('dropping');
+                    claw.style.top = "180px"; 
+                    claw.style.opacity = "1";
+                    void claw.offsetWidth; 
+                    claw.style.transition = ""; 
+                }, 300);
+            }
+        }, 400); 
     }
 </script>
 </body>
