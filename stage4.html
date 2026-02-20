@@ -16,47 +16,43 @@
             color: white; 
             height: 100vh;
             background-color: #000;
+            touch-action: none;
         }
 
+        /* Dark overlay for contrast */
         body::before {
             content: ""; position: fixed; inset: 0;
-            background: rgba(0, 0, 0, 0.4); z-index: 0;
+            background: rgba(0, 0, 0, 0.4); z-index: 1;
         }
         
         #ui { position: absolute; top: 85px; width: 100%; text-align: center; z-index: 100; }
         .count-box { font-size: 22px; color: var(--neon-cyan); text-shadow: 0 0 10px var(--neon-cyan), 2px 2px #000; }
 
-        /* The Target: Floating Azul */
+        /* AZUL (Background Layer) */
         #azul-container {
             position: absolute; 
             top: 15vh; 
-            left: 50%;
-            transform: translateX(-50%); 
-            width: 140px;
-            transition: left 0.9s ease-in-out;
-            z-index: 10;
+            width: 160px;
+            z-index: 5; /* Lower than Mochkil */
+            filter: drop-shadow(0 0 10px var(--neon-cyan));
         }
 
-        /* Grounded Chef Mochkil (Atmospheric) */
+        /* MOCHKIL (Foreground Layer) */
         #mochkil-grounded {
             position: absolute; 
             top: 35vh; 
-            left: 50%;
-            transform: translateX(-50%); 
-            width: 240px;
-            z-index: 5;
-            opacity: 0.8;
-            pointer-events: none;
+            width: 280px; 
+            z-index: 20; /* Higher than Azul so his hat covers Azul's legs */
         }
 
-        /* The Full Bowl */
+        /* THE BOWL (Highest Layer) */
         #bowl-projectile {
             position: absolute; 
             bottom: 60px; 
             left: 50%;
             transform: translateX(-50%); 
-            width: 180px; 
-            z-index: 50; 
+            width: 200px; 
+            z-index: 100; 
             transition: bottom 0.4s ease-in, transform 0.4s, width 0.4s;
         }
 
@@ -74,7 +70,7 @@
 </div>
 
 <div id="azul-container">
-    <img src="azul-hacker.png" style="width: 100%; filter: drop-shadow(0 0 10px var(--neon-cyan));">
+    <img src="azul-hacker.png" style="width: 100%;">
 </div>
 
 <div id="mochkil-grounded">
@@ -90,7 +86,8 @@
     music.loop = true;
 
     const bowl = document.getElementById('bowl-projectile');
-    const target = document.getElementById('azul-container');
+    const azulEl = document.getElementById('azul-container');
+    const mochkilEl = document.getElementById('mochkil-grounded');
     const fedCountEl = document.getElementById('fed-count');
     const feedback = document.getElementById('feedback');
 
@@ -98,8 +95,29 @@
     let isFlicking = false;
     let startY, startTime;
 
+    // Movement Variables
+    let azulX = 10;
+    let mochkilX = 70;
+    let azulDir = 1.2;    // Azul is fast
+    let mochkilDir = -0.7; // Mochkil moves opposite
+
+    function animate() {
+        // Move Azul
+        azulX += azulDir;
+        if (azulX > 80 || azulX < 5) azulDir *= -1;
+        azulEl.style.left = azulX + '%';
+
+        // Move Mochkil
+        mochkilX += mochkilDir;
+        if (mochkilX > 75 || mochkilX < 5) mochkilDir *= -1;
+        mochkilEl.style.left = mochkilX + '%';
+
+        requestAnimationFrame(animate);
+    }
+    animate();
+
     window.addEventListener('touchstart', (e) => {
-        if (music.paused) music.play().catch(e => {});
+        if (music.paused) music.play().catch(err => {});
         if (isFlicking) return;
         startY = e.touches[0].clientY;
         startTime = Date.now();
@@ -109,37 +127,39 @@
         if (isFlicking) return;
         const distance = startY - e.changedTouches[0].clientY;
         const duration = Date.now() - startTime;
-
         if (distance > 100 && duration < 300) flickBowl();
     });
 
     function flickBowl() {
         isFlicking = true;
-        // The bowl travels deep to Azul at 15vh
+        // Flight destination: targeting Azul's depth
         bowl.style.bottom = "75vh";
-        bowl.style.width = "70px"; 
-        bowl.style.transform = "translateX(-50%) rotate(20deg)";
-
+        bowl.style.width = "75px"; 
+        bowl.style.transform = "translateX(-50%) rotate(15deg)";
         setTimeout(checkHit, 400);
     }
 
     function checkHit() {
         const bRect = bowl.getBoundingClientRect();
-        const tRect = target.getBoundingClientRect();
+        const aRect = azulEl.getBoundingClientRect();
 
-        if (bRect.left < tRect.right && bRect.right > tRect.left) {
+        // Check collision with Azul
+        if (bRect.left < aRect.right && bRect.right > aRect.left) {
             fed++;
             fedCountEl.innerText = fed;
             showFeedback("QUANTUM CATCH!", "var(--neon-cyan)");
+            if (navigator.vibrate) navigator.vibrate(100);
             if (fed >= 5) setTimeout(() => { window.location.href = 'victory.html'; }, 1000);
         } else {
-            showFeedback("CALCULATION ERROR!", "red");
+            showFeedback("MISSED AZUL!", "red");
+            if (navigator.vibrate) navigator.vibrate([50, 50]);
         }
 
+        // Reset Bowl
         setTimeout(() => {
             bowl.style.transition = "none";
             bowl.style.bottom = "60px";
-            bowl.style.width = "180px";
+            bowl.style.width = "200px";
             bowl.style.transform = "translateX(-50%)";
             setTimeout(() => { 
                 bowl.style.transition = "bottom 0.4s ease-in, transform 0.4s, width 0.4s";
@@ -154,12 +174,6 @@
         feedback.style.display = 'block';
         setTimeout(() => { feedback.style.display = 'none'; }, 800);
     }
-
-    // Azul's movement pattern
-    setInterval(() => {
-        const newX = Math.random() * 70 + 15;
-        target.style.left = newX + '%';
-    }, 1000);
 </script>
 </body>
 </html>
