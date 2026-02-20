@@ -2,7 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Harira Quest">
+    <link rel="apple-touch-icon" href="mochkil-harira.PNG">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
     <title>Harira Harvest | Maximum Reality</title>
     <style>
         :root { --neon-green: #39FF14; --neon-cyan: #00FFFF; --neon-pink: #FF00FF; }
@@ -21,7 +27,8 @@
         }
 
         #ui { 
-            position: absolute; top: 85px; left: 20px; 
+            position: absolute; top: 100px; /* Lowered for Dynamic Island */
+            left: 20px; 
             color: var(--neon-cyan); font-size: 18px; z-index: 100; 
             text-shadow: 2px 2px #000; pointer-events: none;
             font-family: 'Courier New', monospace;
@@ -86,50 +93,42 @@ window.addEventListener('touchmove', e => {
     if (!gameActive) return;
     e.preventDefault();
     let touchX = e.touches[0].clientX;
-    // Buffer increased so he doesn't clip off the screen edges
     chefX = Math.max(80, Math.min(touchX, canvas.width - 80));
 }, {passive: false});
 
 class Ingredient {
     constructor() {
         let rand = Math.random();
-        if (rand < 0.12) this.type = 'pest'; 
+        if (rand < 0.15) this.type = 'pest'; 
         else if (rand < 0.6) this.type = 'lentil';
         else if (rand < 0.8) this.type = 'chickpea';
         else this.type = 'garlic';
 
         this.x = Math.random() * (canvas.width - 60) + 30;
-        this.y = -80; // Start higher for the bigger size
+        this.y = -80;
         this.speed = 4.5 + Math.random() * 5.5;
-        this.wobble = Math.random() * 10; // For that creepy roach movement
     }
     update() { 
         this.y += this.speed;
-        // If it's a pest, make it scuttle left and right slightly
-        if (this.type === 'pest') {
-            this.x += Math.sin(this.y / 20) * 2;
-        }
+        if (this.type === 'pest') this.x += Math.sin(this.y / 25) * 3; // Creepy scuttle
     }
     draw() {
         if (this.type === 'pest') {
-            ctx.save();
-            ctx.font = "70px serif"; // MASSIVE ROACH
-            ctx.shadowBlur = 20;
-            ctx.shadowColor = "#39FF14"; // Eerie green glow
+            ctx.font = "75px serif"; // GIANT ROACH
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = "#39FF14";
             ctx.fillText("🪳", this.x - 35, this.y);
-            ctx.restore();
         } else {
             const img = sprites[this.type];
             if (img.complete) {
                 ctx.shadowBlur = 15;
                 ctx.shadowColor = recipe[this.type].color;
                 ctx.drawImage(img, this.x - 25, this.y - 25, 50, 50);
-                ctx.shadowBlur = 0;
             }
         }
+        ctx.shadowBlur = 0;
     }
 }
-
 
 function updateUI() {
     document.getElementById('check-list').innerHTML = `
@@ -154,7 +153,6 @@ function loop() {
 
     if (Math.random() < 0.07) items.push(new Ingredient());
     
-    // Increased size to 160px wide
     const chefWidth = 160; 
     const scale = chefWidth / sprites.mochkil.width;
     const chefHeight = sprites.mochkil.height * scale;
@@ -163,15 +161,15 @@ function loop() {
         item.update();
         item.draw();
         
-        // COLLISION: Tighter x-axis (50px) and y-axis focus on the hat/bowl
-        if (item.y > canvas.height - chefHeight - 20 && item.y < canvas.height - chefHeight + 70 &&
-            item.x > chefX - 50 && item.x < chefX + 50) {
+        // TIGHT COLLISION (Catching with the bowl area)
+        if (item.y > canvas.height - chefHeight - 20 && item.y < canvas.height - chefHeight + 80 &&
+            item.x > chefX - 55 && item.x < chefX + 55) {
             
             if (item.type === 'pest') {
                 recipe.chickpea.count = 0;
                 recipe.lentil.count = 0;
                 recipe.garlic.count = 0;
-                if (navigator.vibrate) navigator.vibrate([200, 100, 200]); 
+                if (navigator.vibrate) navigator.vibrate([200, 50, 200]); 
             } else {
                 recipe[item.type].count = Math.min(recipe[item.type].count + 1, recipe[item.type].target);
                 if (navigator.vibrate) navigator.vibrate(20); 
@@ -185,8 +183,8 @@ function loop() {
     });
 
     if (sprites.mochkil.complete) {
-        ctx.shadowBlur = 15;
-        ctx.shadowColor = 'var(--neon-cyan)';
+        ctx.shadowBlur = 20;
+        ctx.shadowColor = 'rgba(0, 255, 255, 0.5)';
         ctx.drawImage(sprites.mochkil, chefX - (chefWidth/2), canvas.height - chefHeight - 20, chefWidth, chefHeight);
         ctx.shadowBlur = 0;
     }
