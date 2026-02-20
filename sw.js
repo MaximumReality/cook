@@ -1,7 +1,8 @@
-const CACHE_NAME = 'harira-quest-v4.2😺🥣'; 
+const CACHE_NAME = 'harira-quest-v4.3😺🥣'; 
 const ASSETS_TO_CACHE = [
   '/',
   'index.html',
+  '404.html',
   'stage1.html',
   'stage2.html',
   'stage3.html',
