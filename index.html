@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <link rel="manifest" href="manifest.json">
-
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Harira Quest">
-
-<link rel="apple-touch-icon" href="mochkil-harira.PNG">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Harira Quest">
+    <meta name="theme-color" content="#FF00FF">
+    <link rel="apple-touch-icon" href="mochkil-harira.PNG">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Harira Quest | Maximum Reality</title>
+    
     <style>
         :root {
             --neon-pink: #FF00FF;
@@ -27,11 +27,10 @@
             flex-direction: column;
             align-items: center;
             height: 100vh;
-            padding-top: 50px; /* Adjusted for Pro Max Dynamic Island */
+            padding-top: 60px; /* Slight bump for Dynamic Island clearance */
             overflow: hidden;
         }
 
-        /* Top Nav: Thumbnail & Home Button side-by-side */
         #header-nav {
             display: flex;
             align-items: center;
@@ -88,7 +87,7 @@
 
         .begin-btn {
             margin-top: auto;
-            margin-bottom: 60px; /* Safe zone for home bar */
+            margin-bottom: 70px; /* Adjusted for iOS home indicator bar */
             padding: 22px 50px;
             background: var(--neon-green);
             color: #000;
@@ -111,7 +110,6 @@
 
     <div id="header-nav">
         <img src="mochkil-harira.png" class="chef-thumb" alt="Chef Mochkil">
-        
         <a href="https://MaximumReality.xyz" class="home-link">
             <span>🏡</span> HOME
         </a>
@@ -134,8 +132,15 @@
     <button class="begin-btn" onclick="startGame()">BEGIN MISSION</button>
 
     <script>
+        // 1. Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(() => console.log("Kitchen is offline-ready!"))
+                .catch((err) => console.log("SW Error:", err));
+        }
+
+        // 2. Start Game Logic
         function startGame() {
-            // Haptic tap for iPhone 14 Pro Max
             if (navigator.vibrate) navigator.vibrate(60);
             window.location.href = 'stage1.html';
         }
