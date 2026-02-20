@@ -129,10 +129,9 @@
         const clawRect = claw.getBoundingClientRect();
         const bowlRect = bowl.getBoundingClientRect();
 
-        setTimeout(() => {
+                setTimeout(() => {
             const finalLeft = clawRect.left + (clawRect.width / 2);
             
-            // Detection: Check if garlic center is within bowl edges
             if (finalLeft > bowlRect.left && finalLeft < bowlRect.right) {
                 caught++;
                 scoreText.innerText = caught;
@@ -140,19 +139,30 @@
                 if (navigator.vibrate) navigator.vibrate([15, 10, 15]);
             }
 
+            // CHECK FOR WIN
             if (caught >= 3) {
-                nextBtn.style.display = 'block';
+                // Hide the garlic so it doesn't keep swinging
                 claw.style.display = 'none';
+                
+                // Optional: Show the button as a backup
+                nextBtn.style.display = 'block';
+
+                // AUTO-FORWARD after 1.5 seconds of glory
+                setTimeout(() => {
+                    window.location.href = 'stage4.html';
+                }, 1500);
+
             } else {
                 // Reset for next garlic
                 claw.style.transition = "none";
                 claw.classList.remove('dropping');
-                claw.style.top = "200px"; // Back to start height
+                claw.style.top = "200px"; 
                 claw.style.opacity = "1";
                 void claw.offsetWidth; 
                 claw.style.transition = ""; 
             }
         }, 500); 
+
     }
 </script>
 </body>
