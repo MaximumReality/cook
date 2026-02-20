@@ -121,26 +121,47 @@
     </div>
 
     <a href="index.html" class="btn-home">REPLAY MISSION</a>
+    
+       <script>
+           
+    // Vibrate on page load
+    if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 300]);
 
-    <script>
-        // Vibrate on page load
-        if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 300]);
+    const iframe = document.getElementById('missionVideo');
+    const container = iframe.parentNode;
 
-        // Offline fallback for video
-        const iframe = document.getElementById('missionVideo');
+    function loadVideo() {
         if (!navigator.onLine) {
-            const container = iframe.parentNode;
-            container.innerHTML = `
-                <video autoplay playsinline controls>
-                    <source src="mission-victory.mp4" type="video/mp4">
-                </video>
-            `;
+            // Replace iframe with cached offline video
+            if (!container.querySelector('video')) {
+                container.innerHTML = `
+                    <video autoplay playsinline controls>
+                        <source src="mission-victory.mp4" type="video/mp4">
+                    </video>
+                `;
+            }
+        } else {
+            // Re-add iframe if back online
+            if (!container.querySelector('iframe')) {
+                container.innerHTML = `
+                    <iframe 
+                        id="missionVideo"
+                        src="https://www.youtube.com/embed/nxcdDiZgwnE?autoplay=1&mute=1&modestbranding=1&rel=0&playsinline=1" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowfullscreen>
+                    </iframe>
+                `;
+            }
         }
+    }
 
-        // Optional: reload when connection changes
-        window.addEventListener('online', () => location.reload());
-        window.addEventListener('offline', () => location.reload());
-    </script>
+    // Initial check
+    loadVideo();
+
+    // Reload video on connection change
+    window.addEventListener('online', loadVideo);
+    window.addEventListener('offline', loadVideo);
+</script>
 
 </body>
 </html>
