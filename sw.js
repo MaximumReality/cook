@@ -36,46 +36,30 @@ const ASSETS_TO_CACHE = [
   'that-8-bit-music.mp3'
 ];
 
-// INSTALL: Add missing files and update changed ones
-self.addEventListener('install', (event) => {
+// INSTALL: Only cache missing files
+self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(async (cache) => {
-      console.log('Stocking the digital pantry...');
+    caches.open(CACHE_NAME).then(async cache => {
       const cachedRequests = await cache.keys();
       const cachedUrls = cachedRequests.map(req => req.url.split('/').pop());
-
-      // Identify missing files
       const missingAssets = ASSETS_TO_CACHE.filter(asset => !cachedUrls.includes(asset));
-
-      // Add missing files
-      await cache.addAll(missingAssets);
-
-      // Refresh existing cached files (force network check)
-      await Promise.all(
-        ASSETS_TO_CACHE.map(async (asset) => {
-          try {
-            const response = await fetch(asset, { cache: 'no-cache' });
-            if (response.ok) {
-              await cache.put(asset, response.clone());
-            }
-          } catch (err) {
-            console.warn('Failed to refresh asset:', asset, err);
-          }
-        })
-      );
+      if (missingAssets.length) {
+        console.log('Caching missing assets:', missingAssets);
+        return cache.addAll(missingAssets);
+      }
     })
   );
   self.skipWaiting();
 });
 
 // ACTIVATE: Delete old caches
-self.addEventListener('activate', (event) => {
+self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => 
+    caches.keys().then(cacheNames =>
       Promise.all(
-        cacheNames.map((cache) => {
+        cacheNames.map(cache => {
           if (cache !== CACHE_NAME) {
-            console.log('Cleaning the kitchen floor:', cache);
+            console.log('Deleting old cache:', cache);
             return caches.delete(cache);
           }
         })
@@ -86,14 +70,14 @@ self.addEventListener('activate', (event) => {
 });
 
 // FETCH: Pages → network first, Assets → cache first
-self.addEventListener('fetch', (event) => {
+self.addEventListener('fetch', event => {
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request).catch(() => caches.match(event.request) || caches.match('404.html'))
     );
   } else {
     event.respondWith(
-      caches.match(event.request).then((response) => response || fetch(event.request))
+      caches.match(event.request).then(response => response || fetch(event.request))
     );
   }
-});
+}););
