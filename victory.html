@@ -60,6 +60,23 @@ iframe, video {
     border-radius: 15px;
 }
 
+#unmute-btn {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    padding: 6px 12px;
+    background: var(--neon-pink);
+    color: black;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    text-shadow: 0 0 3px var(--neon-pink);
+    box-shadow: 0 0 8px var(--neon-pink);
+    cursor: pointer;
+    z-index: 200;
+    display: none;
+}
+
 .btn-home {
     margin-top: 20px; 
     padding: 12px 30px;
@@ -112,6 +129,8 @@ iframe, video {
     <video id="local-video" autoplay muted playsinline loop style="display:none;">
         <source src="mission-victory.mp4" type="video/mp4">
     </video>
+
+    <button id="unmute-btn">UNMUTE 🔊</button>
 </div>
 
 <a href="index.html" class="btn-home">REPLAY MISSION</a>
@@ -119,18 +138,20 @@ iframe, video {
 <script>
 const ytVideo = document.getElementById('yt-video');
 const localVideo = document.getElementById('local-video');
+const unmuteBtn = document.getElementById('unmute-btn');
 
-// Play vibration on load
 if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 300]);
 
 function updateVideoSource() {
     if (navigator.onLine) {
         ytVideo.style.display = 'block';
         localVideo.style.display = 'none';
+        unmuteBtn.style.display = 'none';
     } else {
         ytVideo.style.display = 'none';
         localVideo.style.display = 'block';
-        localVideo.play().catch(e => {}); // ensure autoplay starts offline
+        localVideo.play().catch(e=>{});
+        unmuteBtn.style.display = 'block';
     }
 }
 
@@ -140,6 +161,13 @@ updateVideoSource();
 // Listen for network changes
 window.addEventListener('online', updateVideoSource);
 window.addEventListener('offline', updateVideoSource);
+
+// Unmute button
+unmuteBtn.addEventListener('click', () => {
+    localVideo.muted = false;
+    localVideo.play().catch(e=>{});
+    unmuteBtn.style.display = 'none';
+});
 </script>
 
 </body>
