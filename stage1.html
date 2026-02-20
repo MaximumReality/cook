@@ -102,60 +102,40 @@ sprites.mochkil.src = 'mochkil-harira.png';
 class Ingredient {
     constructor() {
         let rand = Math.random();
-        if (rand < 0.6) this.type = 'lentil';
+        // Adding the Pest (🪳) into the spawn pool
+        if (rand < 0.1) this.type = 'pest'; 
+        else if (rand < 0.6) this.type = 'lentil';
         else if (rand < 0.8) this.type = 'chickpea';
         else this.type = 'garlic';
 
         this.x = Math.random() * (canvas.width - 60) + 30;
         this.y = -50;
-        this.speed = 3 + Math.random() * 4;
+        this.speed = 4 + Math.random() * 5; // Slightly faster for more challenge
     }
     update() { this.y += this.speed; }
     draw() {
-        const img = sprites[this.type];
-        if (img.complete) {
-            ctx.shadowBlur = 15;
-            ctx.shadowColor = recipe[this.type].color;
-            ctx.drawImage(img, this.x - 25, this.y - 25, 50, 50);
-            ctx.shadowBlur = 0;
+        if (this.type === 'pest') {
+            ctx.font = "40px serif";
+            ctx.fillText("🪳", this.x - 20, this.y);
+        } else {
+            const img = sprites[this.type];
+            if (img.complete) {
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = recipe[this.type].color;
+                ctx.drawImage(img, this.x - 25, this.y - 25, 50, 50);
+                ctx.shadowBlur = 0;
+            }
         }
     }
 }
-
-function updateUI() {
-    document.getElementById('check-list').innerHTML = `
-        - Chickpeas: ${recipe.chickpea.count}/${recipe.chickpea.target}<br>
-        - Lentils: ${recipe.lentil.count}/${recipe.lentil.target}<br>
-        - Garlic Claws: ${recipe.garlic.count}/${recipe.garlic.target}
-    `;
-}
-
-function triggerLevelExit() {
-    gameActive = false;
-    let glitchCount = 0;
-    const glitchInterval = setInterval(() => {
-        canvas.style.filter = `hue-rotate(${Math.random() * 360}deg) invert(${Math.random() > 0.5 ? 1 : 0}) blur(2px)`;
-        if (++glitchCount > 12) {
-            clearInterval(glitchInterval);
-            window.location.href = 'stage2.html';
-        }
-    }, 60);
-}
-
-window.addEventListener('touchmove', e => {
-    e.preventDefault();
-    let touchX = e.touches[0].clientX;
-    chefX = Math.max(60, Math.min(touchX, canvas.width - 60));
-}, {passive: false});
 
 function loop() {
     if (!gameActive) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    if (Math.random() < 0.05) items.push(new Ingredient());
+    if (Math.random() < 0.06) items.push(new Ingredient());
     
-    // Calculate Mochkil's aspect ratio height
-    const chefWidth = 140; // Slightly wider for presence
+    const chefWidth = 140;
     const scale = chefWidth / sprites.mochkil.width;
     const chefHeight = sprites.mochkil.height * scale;
 
@@ -163,38 +143,35 @@ function loop() {
         item.update();
         item.draw();
         
-        // Collision Detection - Updated to match his real height
-        if (item.y > canvas.height - chefHeight - 40 && item.y < canvas.height - 40 &&
-            item.x > chefX - (chefWidth/2) && item.x < chefX + (chefWidth/2)) {
+        // TIGHTER COLLISION: Must hit the top-center (the bowl/hat area)
+        if (item.y > canvas.height - chefHeight - 20 && item.y < canvas.height - chefHeight + 40 &&
+            item.x > chefX - 40 && item.x < chefX + 40) {
             
-            recipe[item.type].count = Math.min(recipe[item.type].count + 1, recipe[item.type].target);
-            updateUI();
-            if (navigator.vibrate) navigator.vibrate(15); 
-            items.splice(index, 1);
-            
-            if (recipe.chickpea.count >= recipe.chickpea.target &&
-                recipe.lentil.count >= recipe.lentil.target &&
-                recipe.garlic.count >= recipe.garlic.target) {
-                triggerLevelExit();
+            if (item.type === 'pest') {
+                // RESET THE RECIPE!
+                recipe.chickpea.count = 0;
+                recipe.lentil.count = 0;
+                recipe.garlic.count = 0;
+                if (navigator.vibrate) navigator.vibrate([200, 100, 200]); 
+                alert("CONTAMINATION! MOCHKIL MUST START OVER 🪳");
+            } else {
+                recipe[item.type].count = Math.min(recipe[item.type].count + 1, recipe[item.type].target);
+                if (navigator.vibrate) navigator.vibrate(15); 
             }
+            
+            updateUI();
+            items.splice(index, 1);
+            checkWin();
         }
         if (item.y > canvas.height + 100) items.splice(index, 1);
     });
 
     if (sprites.mochkil.complete) {
-        ctx.shadowBlur = 20;
-        ctx.shadowColor = '#00FFFF';
-        ctx.drawImage(
-            sprites.mochkil, 
-            chefX - (chefWidth/2), 
-            canvas.height - chefHeight - 20, 
-            chefWidth, 
-            chefHeight
-        );
-        ctx.shadowBlur = 0;
+        ctx.drawImage(sprites.mochkil, chefX - (chefWidth/2), canvas.height - chefHeight - 20, chefWidth, chefHeight);
     }
     requestAnimationFrame(loop);
 }
+
 
 loop();
 </script>
