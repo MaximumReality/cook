@@ -44,20 +44,20 @@
 
     #pot-stage {
     position: absolute; 
-    /* Switch to bottom-based positioning for better grounding */
-    bottom: 15%; 
+    /* Use 'vh' to force it down regardless of the phone's aspect ratio */
+    top: 75vh; 
     left: 50%;
-    transform: translateX(-50%); /* Only centering horizontally now */
-    width: 380px; /* Slightly wider for better presence */
-    height: auto;
+    transform: translate(-50%, -50%);
+    width: 90vw; /* Scale based on width so it doesn't clip on the sides */
+    max-width: 400px; 
     z-index: 10;
 }
 
 #bowl-img {
     width: 100%; 
     height: auto;
-    display: block;
 }
+
 
     #ladle-img {
     position: absolute;
