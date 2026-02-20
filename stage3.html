@@ -30,26 +30,33 @@
         }
         
         /* Updated CSS for Layering */
-#target-bowl {
+#game-zone {
     position: absolute;
-    top: 75vh; 
+    top: 75vh;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 320px; 
-    z-index: 30; /* Higher than the garlic */
+    width: 320px;
+    height: 300px; /* Adjust this to match the height of your bowl */
+    overflow: hidden; /* THIS IS THE FIX: It clips anything that falls too low */
+    z-index: 30;
+}
+
+#target-bowl {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 10;
 }
 
 #garlic-container {
     position: absolute;
-    top: 150px;
+    top: -400px; /* Start way above the bowl */
     left: 0;
     width: 100%;
-    height: 100px;
-    z-index: 20; /* Lower than the bowl */
+    height: 100%;
+    z-index: 5; /* Behind the bowl soup */
 }
-
-
-
 
         #garlic-claw {
             position: absolute;
@@ -67,20 +74,12 @@
         /* Updated Drop Animation */
 
 .dropping {
-    animation: none !important; 
-    /* Slightly faster transition for a snappier drop */
-    transition: top 0.4s cubic-bezier(0.47, 0, 0.74, 0.71), 
-                transform 0.4s, 
-                opacity 0.2s ease-in 0.2s; 
-
-    /* Raised the target to 64vh to keep it inside the bowl's body */
-    top: 64vh !important; 
-    
-    transform: translateX(-50%) scale(0.4) !important;
+    animation: none !important;
+    transition: top 0.4s ease-in, opacity 0.2s ease-in 0.2s;
+    /* Move it just deep enough into the soup */
+    top: 50px !important; 
     opacity: 0;
 }
-
-
 
         .ripple {
     position: absolute;
@@ -115,11 +114,15 @@
 
 <div id="ui">MISSION: CALIBRATE FLAVOR<br>Garlic Claws: <span id="score">0</span>/3</div>
 
-<div id="garlic-container">
-    <img src="garlic.png" id="garlic-claw">
-</div>
+<div id="game-zone">
+    <div id="garlic-container">
+        <img src="garlic.png" id="garlic-claw">
+    </div>
+    
+    <img src="bowl-with-soup.png" id="target-bowl">
+    
+    </div>
 
-<img src="bowl-with-soup.png" id="target-bowl">
 
 <button id="next-btn" onclick="window.location.href='win.html'">SERVE MEAL</button>
 
