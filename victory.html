@@ -55,15 +55,6 @@
             border-radius: 15px;
             overflow: hidden;
             background: #000;
-            transition: height 0.3s ease;
-        }
-
-        /* SCREEN HEIGHT CHECK: If the toolbar is visible, shrink the video */
-        @media screen and (max-height: 700px) {
-            .video-container {
-                max-width: 220px;
-            }
-            .glitch-title { font-size: 1.4rem; }
         }
 
         iframe, video {
@@ -111,7 +102,7 @@
         <p style="color: var(--neon-cyan); margin: 0; font-size: 0.9rem;">MOCHKIL & AZUL APPROVE</p>
     </div>
 
-    <div class="video-container">
+    <div class="video-container" id="video-wrapper">
         <iframe 
             id="missionVideo"
             src="https://www.youtube.com/embed/nxcdDiZgwnE?autoplay=1&mute=1&modestbranding=1&rel=0&playsinline=1" 
@@ -121,47 +112,27 @@
     </div>
 
     <a href="index.html" class="btn-home">REPLAY MISSION</a>
-    
-       <script>
-           
-    // Vibrate on page load
-    if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 300]);
 
-    const iframe = document.getElementById('missionVideo');
-    const container = iframe.parentNode;
+    <script>
+        // Vibrate on page load
+        if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 300]);
 
-    function loadVideo() {
+        // Offline fallback
+        const container = document.getElementById('video-wrapper');
+        const iframe = document.getElementById('missionVideo');
+
         if (!navigator.onLine) {
-            // Replace iframe with cached offline video
-            if (!container.querySelector('video')) {
-                container.innerHTML = `
-                    <video autoplay playsinline controls>
-                        <source src="mission-victory.mp4" type="video/mp4">
-                    </video>
-                `;
-            }
-        } else {
-            // Re-add iframe if back online
-            if (!container.querySelector('iframe')) {
-                container.innerHTML = `
-                    <iframe 
-                        id="missionVideo"
-                        src="https://www.youtube.com/embed/nxcdDiZgwnE?autoplay=1&mute=1&modestbranding=1&rel=0&playsinline=1" 
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                        allowfullscreen>
-                    </iframe>
-                `;
-            }
+            container.innerHTML = `
+                <video autoplay playsinline controls>
+                    <source src="mission-victory.mp4" type="video/mp4">
+                </video>
+            `;
         }
-    }
 
-    // Initial check
-    loadVideo();
-
-    // Reload video on connection change
-    window.addEventListener('online', loadVideo);
-    window.addEventListener('offline', loadVideo);
-</script>
+        // Reload when connection changes
+        window.addEventListener('online', () => location.reload());
+        window.addEventListener('offline', () => location.reload());
+    </script>
 
 </body>
 </html>
