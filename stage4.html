@@ -8,98 +8,127 @@
         :root { --neon-pink: #FF00FF; --neon-cyan: #00FFFF; }
         body { margin: 0; background: #000; overflow: hidden; font-family: 'Courier New', monospace; color: white; }
         
-        #ui { position: absolute; top: 65px; width: 100%; text-align: center; z-index: 10; }
-        
-        /* The Customer (Target) */
-        #customer {
+        #ui { position: absolute; top: 65px; width: 100%; text-align: center; z-index: 100; }
+        .count-box { font-size: 22px; color: var(--neon-cyan); text-shadow: 0 0 10px var(--neon-cyan); }
+
+        /* The Customer Sprite (Target) */
+        #customer-container {
             position: absolute; top: 150px; left: 50%;
-            transform: translateX(-50%); width: 120px; transition: left 2s linear;
+            transform: translateX(-50%); width: 150px;
+            transition: left 1.5s ease-in-out;
+        }
+        #customer-img { width: 100%; filter: drop-shadow(0 0 10px var(--neon-pink)); }
+
+        /* The Bowl Projectile */
+        #bowl-projectile {
+            position: absolute; bottom: 80px; left: 50%;
+            transform: translateX(-50%); width: 100px;
+            z-index: 50; transition: bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), transform 0.5s;
         }
 
-        /* The Bowl (Projectile) */
-        #bowl {
-            position: absolute; bottom: 50px; left: 50%;
-            transform: translateX(-50%); width: 80px; height: 50px;
-            background: #6b4e31; border: 3px solid var(--neon-cyan);
-            border-radius: 0 0 50px 50px; z-index: 5;
+        #feedback {
+            position: absolute; top: 45%; width: 100%; text-align: center;
+            font-size: 30px; font-weight: bold; display: none; pointer-events: none;
         }
-
-        .served-count { font-size: 24px; color: var(--neon-pink); }
     </style>
 </head>
 <body>
 
 <div id="ui">
-    <div style="color:var(--neon-cyan)">STAGE 4: THE SERVE</div>
-    <div class="served-count">SERVED: <span id="count">0</span>/5</div>
+    <div class="count-box">CUSTOMERS FED: <span id="fed-count">0</span>/5</div>
 </div>
 
-<img src="mochkil_happy.png" id="customer"> <div id="bowl"></div>
+<div id="customer-container">
+    <img src="mochkil-harira.png" id="customer-img">
+</div>
+
+<div id="feedback">PERFECT SERVE!</div>
+
+<img src="bowl.png" id="bowl-projectile">
 
 <script>
-    let served = 0;
-    const bowl = document.getElementById('bowl');
-    const customer = document.getElementById('customer');
-    const countEl = document.getElementById('count');
-    
+    const music = new Audio('arcade-games-neon-munch.mp3');
+    music.loop = true;
+
+    const bowl = document.getElementById('bowl-projectile');
+    const customer = document.getElementById('customer-container');
+    const fedCountEl = document.getElementById('fed-count');
+    const feedback = document.getElementById('feedback');
+
+    let fed = 0;
+    let isFlicking = false;
     let startY, startTime;
-    let isFlying = false;
 
-    // Move the customer back and forth
-    function moveCustomer() {
-        let newPos = Math.random() * 70 + 15;
-        customer.style.left = newPos + '%';
-        setTimeout(moveCustomer, 2000);
-    }
-
-    window.addEventListener('touchstart', e => {
-        if (isFlying) return;
+    // Start high-energy music
+    window.addEventListener('touchstart', (e) => {
+        if (music.paused) music.play();
+        if (isFlicking) return;
         startY = e.touches[0].clientY;
         startTime = Date.now();
-    });
+    }, {passive: false});
 
-    window.addEventListener('touchend', e => {
-        if (isFlying) return;
-        let endY = e.changedTouches[0].clientY;
-        let duration = Date.now() - startTime;
-        let distance = startY - endY;
+    window.addEventListener('touchend', (e) => {
+        if (isFlicking) return;
+        const endY = e.changedTouches[0].clientY;
+        const distance = startY - endY;
+        const duration = Date.now() - startTime;
 
-        if (distance > 100 && duration < 300) {
-            launchBowl();
+        // Velocity check: must be a quick swipe upward
+        if (distance > 150 && duration < 300) {
+            flickBowl();
         }
     });
 
-    function launchBowl() {
-        isFlying = true;
-        bowl.style.transition = 'bottom 0.5s ease-out, transform 0.5s';
-        bowl.style.bottom = '70%'; // Launch upward
-        
-        setTimeout(() => {
-            checkCollision();
-        }, 500);
+    function flickBowl() {
+        isFlicking = true;
+        bowl.style.bottom = "65%";
+        bowl.style.transform = "translateX(-50%) scale(0.6)";
+
+        setTimeout(checkHit, 500);
     }
 
-    function checkCollision() {
+    function checkHit() {
         const bRect = bowl.getBoundingClientRect();
         const cRect = customer.getBoundingClientRect();
 
-        // Simple overlap check
+        // Check if the bowl's X position matches the moving customer
         if (bRect.left < cRect.right && bRect.right > cRect.left) {
-            served++;
-            countEl.innerText = served;
-            if (served >= 5) {
-                // Redirect to your original victory screen/video page
-                window.location.href = 'victory.html'; 
+            fed++;
+            fedCountEl.innerText = fed;
+            showFeedback("MICHELIN STAR!", "#39FF14");
+            
+            if (fed >= 5) {
+                setTimeout(() => { window.location.href = 'victory.html'; }, 1000);
             }
+        } else {
+            showFeedback("MISSED THE TABLE!", "red");
         }
 
         // Reset bowl
-        bowl.style.transition = 'none';
-        bowl.style.bottom = '50px';
-        isFlying = false;
+        setTimeout(() => {
+            bowl.style.transition = "none";
+            bowl.style.bottom = "80px";
+            bowl.style.transform = "translateX(-50%) scale(1)";
+            setTimeout(() => { 
+                bowl.style.transition = "bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), transform 0.5s";
+                isFlicking = false; 
+            }, 50);
+        }, 800);
     }
 
-    moveCustomer();
+    function showFeedback(txt, color) {
+        feedback.innerText = txt;
+        feedback.style.color = color;
+        feedback.style.display = 'block';
+        setTimeout(() => { feedback.style.display = 'none'; }, 800);
+    }
+
+    // Move customer randomly
+    setInterval(() => {
+        const newX = Math.random() * 60 + 20;
+        customer.style.left = newX + '%';
+    }, 1500);
+
 </script>
 </body>
 </html>
