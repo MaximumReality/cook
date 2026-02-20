@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Harira Quest">
 <link rel="apple-touch-icon" href="mochkil-harira.PNG">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
 <title>Mission Success | Maximum Reality</title>
 
@@ -23,19 +23,25 @@ body {
     background: #000;
     color: white;
     font-family: 'Courier New', monospace;
+
     display: flex;
     flex-direction: column;
     align-items: center;
+
+    /* Safari-safe height */
+    min-height: 100svh;
+
+    /* Shift layout slightly upward */
     justify-content: center;
-    height: 100vh;
+    padding-top: 30px;
+    padding-bottom: calc(env(safe-area-inset-bottom) + 20px);
+
     overflow: hidden;
 }
 
 #victory-header {
     text-align: center;
-    margin-top: env(safe-area-inset-top, 20px);
-    margin-bottom: 10px;
-    z-index: 10;
+    margin-bottom: 15px;
 }
 
 .glitch-title {
@@ -48,16 +54,15 @@ body {
 .video-container {
     position: relative;
     width: 80%;
-    max-width: 280px;
+    max-width: 300px;
     aspect-ratio: 9/16;
     border: 3px solid var(--neon-cyan);
     box-shadow: 0 0 20px var(--neon-cyan);
     border-radius: 15px;
     overflow: hidden;
     background: #000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+
+    margin-bottom: 20px;
 }
 
 video, iframe {
@@ -67,7 +72,6 @@ video, iframe {
 }
 
 .btn-home {
-    margin-top: 20px;
     padding: 12px 30px;
     background: transparent;
     border: 2px solid var(--neon-pink);
@@ -78,10 +82,7 @@ video, iframe {
     text-shadow: 0 0 5px var(--neon-pink);
     box-shadow: 0 0 10px var(--neon-pink);
     animation: pulse 2s infinite;
-    margin-bottom: env(safe-area-inset-bottom, 20px);
 }
-
-
 
 @keyframes pulse {
     0% { box-shadow: 0 0 5px var(--neon-pink); }
@@ -99,27 +100,29 @@ video, iframe {
 }
 </style>
 </head>
+
 <body>
 
 <div id="victory-header">
     <h1 class="glitch-title">HARIRA UNLOCKED</h1>
-    <p style="color: var(--neon-cyan); margin: 0; font-size: 0.9rem;">MOCHKIL & AZUL APPROVE</p>
+    <p style="color: var(--neon-cyan); margin: 0; font-size: 0.9rem;">
+        MOCHKIL & AZUL APPROVE
+    </p>
 </div>
 
-<div class="video-container" id="video-wrapper">
-    <!-- Video / YouTube placeholder -->
-</div>
+<div class="video-container" id="video-wrapper"></div>
+
+<a href="index.html" class="btn-home">REPLAY MISSION</a>
 
 <script>
 // Detect online/offline
-const isOnline = navigator.onLine;
 const container = document.getElementById('video-wrapper');
 
-if(isOnline) {
+if (navigator.onLine) {
     container.innerHTML = `
         <iframe 
-            src="https://www.youtube.com/embed/nxcdDiZgwnE?autoplay=1&mute=1&modestbranding=1&rel=0&playsinline=1" 
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            src="https://www.youtube.com/embed/nxcdDiZgwnE?autoplay=1&mute=1&modestbranding=1&rel=0&playsinline=1"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowfullscreen>
         </iframe>
     `;
@@ -131,8 +134,11 @@ if(isOnline) {
     `;
 }
 
-// Vibrate on page load
-if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 300]);
+// Haptic feedback
+if (navigator.vibrate) {
+    navigator.vibrate([100, 50, 100, 50, 300]);
+}
 </script>
+
 </body>
 </html>
