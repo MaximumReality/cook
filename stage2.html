@@ -24,8 +24,8 @@
         /* 2. THE SOUP ACTION ZONE (The Mask) */
         #soup-container {
             position: absolute;
-            top: 20%; left: 10%; 
-            width: 80%; height: 45%; 
+            top: 18%; left: 10%; 
+            width: 80%; height: 48%; 
             border-radius: 50%;
             overflow: hidden; /* This keeps the soup and ladle inside the bowl */
             z-index: 2;
@@ -44,7 +44,7 @@
             pointer-events: none;
             /* Start it in the middle */
             top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
+            transform-origin: center;
         }
 
         /* 4. FRONT RIM OVERLAY */
@@ -114,7 +114,7 @@
         const touch = e.touches[0];
         const rect = soupZone.getBoundingClientRect();
         
-        // 1. Position Ladle relative to the SOUP ZONE
+        // 1. Position Ladle relative to the SOUP ZONE container
         const lx = touch.clientX - rect.left - 50; // 50 is half ladle width
         const ly = touch.clientY - rect.top - 50;
         
@@ -124,8 +124,8 @@
         // 2. Calculate Rotation (for density)
         const centerX = rect.width / 2;
         const centerY = rect.height / 2;
-        const dx = lx + 50 - centerX;
-        const dy = ly + 50 - centerY;
+        const dx = (lx + 50) - centerX;
+        const dy = (ly + 50) - centerY;
         const angle = Math.atan2(dy, dx);
         
         if (lastAngle !== null) {
@@ -137,7 +137,7 @@
             const progress = Math.min((totalRotation / (Math.PI * 15)) * 100, 100);
             
             densityVal.innerText = Math.floor(progress);
-            // Visual tilt of the ladle head
+            // Visual tilt: +1.5 keeps the ladle bowl pointing to center
             ladle.style.transform = `rotate(${angle + 1.5}rad)`; 
 
             if (progress >= 100) {
