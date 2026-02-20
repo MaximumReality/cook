@@ -1,4 +1,4 @@
-const CACHE_NAME = 'harira-quest-v2'; // Increment this (v3, v4) when you update files
+const CACHE_NAME = 'harira-quest-v4'; 
 const ASSETS_TO_CACHE = [
   '/',
   'index.html',
@@ -8,12 +8,16 @@ const ASSETS_TO_CACHE = [
   'stage4.html',
   'victory.html',
   'manifest.json',
+  'README.md',
+  'LICENSE',
   
-  // Images & Sprites
-  'mochkil-harira.png',
-  'mochkil-harira.PNG',
+  // Favicon & Portraits
+  'mochkil-harira.PNG',  // Favicon & Thumbnail
+  'mochkil-harira.png',  // Game Sprite
   'azul-hacker.png',
   'azul-insight.png',
+  
+  // Environment & Props
   'cyber-kitchen-bg.PNG',
   'bowl.png',
   'bowl-with-soup.png',
@@ -29,36 +33,32 @@ const ASSETS_TO_CACHE = [
   'that-8-bit-music.mp3'
 ];
 
-// 1. Install Event: Populate the cache
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('Chef Mochkil is prepping the cache...');
+      console.log('Stocking the digital pantry...');
       return cache.addAll(ASSETS_TO_CACHE);
     })
   );
-  self.skipWaiting(); // Force the new service worker to take over immediately
+  self.skipWaiting();
 });
 
-// 2. Activate Event: CLEAR OLD CACHES
-// This ensures your "de-midgetized" Mochkil and larger roach show up
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cache) => {
           if (cache !== CACHE_NAME) {
-            console.log('Clearing old kitchen scraps:', cache);
+            console.log('Cleaning the kitchen floor:', cache);
             return caches.delete(cache);
           }
         })
       );
     })
   );
-  return self.clients.claim(); // Immediately start controlling all open tabs
+  return self.clients.claim();
 });
 
-// 3. Fetch Event: Serve from cache, fallback to network
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((response) => {
