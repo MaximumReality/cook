@@ -3,16 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <link rel="manifest" href="manifest.json">
-
-<meta name="apple-mobile-web-app-capable" content="yes">
-
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
-<meta name="apple-mobile-web-app-title" content="Harira Quest">
-
-<link rel="apple-touch-icon" href="mochkil-harira.PNG">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Harira Quest">
+    <link rel="apple-touch-icon" href="mochkil-harira.PNG">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 
     <title>The Mash | Snack Attack</title>
     <style>
@@ -20,180 +15,96 @@
         --neon-blue: #00FFEF; 
         --neon-pink: #FF00FF; 
         --neon-green: #39FF14; 
+        --neon-cyan: #00FFFF;
     }
 
     body {
-        margin: 0;
-        padding: 0;
-        /* Ensure the filename case matches GitHub precisely */
+        margin: 0; padding: 0;
         background: url('cyber-kitchen-bg.PNG') no-repeat center center fixed;
         background-size: cover;
-        height: 100vh;
-        overflow: hidden;
-        background-color: #000;
+        height: 100vh; overflow: hidden; background-color: #000;
     }
 
-    /* TRANSLUCENT BLACK OVERLAY */
     body::before {
-        content: "";
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.6); /* Translucent black for high contrast */
-        z-index: 0;
+        content: ""; position: fixed; inset: 0;
+        background: rgba(0, 0, 0, 0.6); z-index: 0;
     }
 
     #ui-text { 
-        position: absolute; 
-        top: 85px; /* Clearing the Dynamic Island */
-        left: 20px; 
-        z-index: 100; 
-        pointer-events: none; 
-        font-family: 'Courier New', monospace;
+        position: absolute; top: 40px; left: env(safe-area-inset-left, 20px); 
+        z-index: 100; pointer-events: none; font-family: 'Courier New', monospace;
     }
 
-    .stat { color: var(--neon-blue); font-size: 20px; font-weight: bold; text-shadow: 2px 2px #000; }
+    .stat { color: var(--neon-blue); font-size: 24px; font-weight: bold; text-shadow: 2px 2px #000; }
 
-    @media screen and (orientation: landscape) {
-    #pot-stage {
-        top: 55%; /* Lowers it slightly from center to sit on the island */
+    /* POT & LADLE CONTAINER */
+    #game-container {
+        position: absolute;
+        top: 50%; left: 50%;
         transform: translate(-50%, -50%);
+        width: 80vh; height: 80vh; /* Scaled to screen height for landscape */
+        z-index: 10;
     }
-}
 
-
-#bowl-img {
-    width: 100%; 
-    height: auto;
-}
-
+    #bowl-img { width: 100%; height: auto; display: block; }
 
     #ladle-img {
-    position: absolute;
-    width: 140px; 
-    z-index: 20;
-    pointer-events: none;
-    /* Position relative to the new bowl height */
-    top: 20%; 
-    left: 50%;
-    transform: translateX(-50%);
-}
-
-
+        position: absolute;
+        width: 120px; z-index: 20;
+        pointer-events: none;
+        top: 20%; left: 50%;
+        transform: translate(-50%, -50%);
+    }
 
     #azul-hud {
-        position: absolute; 
-        top: 80px; 
-        right: 20px;
-        width: 110px; 
-        border: 2px solid var(--neon-blue);
-        background: rgba(0, 255, 239, 0.15); 
-        border-radius: 10px;
-        text-align: center; 
-        font-size: 10px; 
-        z-index: 100;
-        backdrop-filter: blur(5px); /* Makes the HUD feel premium */
+        position: absolute; top: 40px; right: env(safe-area-inset-right, 20px);
+        width: 120px; border: 2px solid var(--neon-blue);
+        background: rgba(0, 255, 239, 0.15); border-radius: 10px;
+        text-align: center; font-size: 10px; z-index: 100;
+        backdrop-filter: blur(5px);
     }
 
     #next-btn {
-        display: none; 
-        position: absolute; 
-        bottom: 80px; 
-        left: 50%;
-        transform: translateX(-50%); 
-        padding: 20px 40px;
-        background: var(--neon-pink); 
-        border: none; 
-        color: white;
-        font-weight: bold; 
-        border-radius: 50px; 
-        z-index: 200;
+        display: none; position: absolute; bottom: 40px; left: 50%;
+        transform: translateX(-50%); padding: 20px 40px;
+        background: var(--neon-pink); border: none; color: white;
+        font-weight: bold; border-radius: 50px; z-index: 200;
         box-shadow: 0 0 20px var(--neon-pink);
     }
-        /* Hidden by default */
-#landscape-blocker {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: #000;
-    z-index: 9999;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    font-family: 'Courier New', monospace;
-    text-align: center;
-}
 
-/* Show only in Portrait */
-@media screen and (orientation: portrait) {
+    /* LANDSCAPE BLOCKER: Only shows in Portrait */
     #landscape-blocker {
-        display: flex;
+        display: none; position: fixed; inset: 0;
+        background: #000; z-index: 9999; flex-direction: column;
+        justify-content: center; align-items: center;
+        font-family: 'Courier New', monospace; text-align: center;
     }
-}
 
-.hacker-box {
-    border: 2px solid var(--neon-cyan);
-    padding: 30px;
-    background: rgba(0, 255, 255, 0.05);
-    box-shadow: 0 0 20px var(--neon-cyan);
-    border-radius: 15px;
-}
+    @media screen and (orientation: portrait) {
+        #landscape-blocker { display: flex; }
+    }
 
-.glitch-cat {
-    width: 120px;
-    margin-bottom: 20px;
-    filter: drop-shadow(0 0 10px var(--neon-pink));
-}
+    .hacker-box {
+        border: 2px solid var(--neon-cyan); padding: 30px;
+        background: rgba(0, 255, 255, 0.05); border-radius: 15px;
+    }
 
-.neon-text {
-    color: var(--neon-pink);
-    letter-spacing: 2px;
-    margin-bottom: 10px;
-}
-
-.cyber-p {
-    color: var(--neon-cyan);
-    font-size: 14px;
-    line-height: 1.6;
-}
-
-.loading-bar {
-    width: 100%;
-    height: 4px;
-    background: #222;
-    margin-top: 20px;
-    position: relative;
-    overflow: hidden;
-}
-
-.loading-bar::after {
-    content: "";
-    position: absolute;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: var(--neon-green);
-    animation: scan 2s linear infinite;
-}
-
-@keyframes scan {
-    0% { left: -100%; }
-    100% { left: 100%; }
-}
-
+    .glitch-cat { width: 120px; margin-bottom: 20px; filter: drop-shadow(0 0 10px var(--neon-pink)); }
+    .neon-text { color: var(--neon-pink); letter-spacing: 2px; }
+    .loading-bar { width: 100%; height: 4px; background: #222; margin-top: 20px; position: relative; overflow: hidden; }
+    .loading-bar::after { content: ""; position: absolute; left: -100%; width: 100%; height: 100%; background: var(--neon-green); animation: scan 2s linear infinite; }
+    @keyframes scan { 0% { left: -100%; } 100% { left: 100%; } }
 </style>
-
 </head>
 <body>
-    <div id="landscape-blocker">
+
+<div id="landscape-blocker">
     <div class="hacker-box">
         <img src="mochkil-harira.png" alt="Mochkil" class="glitch-cat">
-        <h2 class="neon-text">ROTATE YOUR DEVICE</h2>
-        
+        <h2 class="neon-text">ROTATE FOR STIRRING</h2>
         <div class="loading-bar"></div>
     </div>
 </div>
-
-
 
 <div id="ui-text"><div class="stat">DENSITY: <span id="density-val">0</span>%</div></div>
 
@@ -217,6 +128,7 @@
     const container = document.getElementById('game-container');
     const densityVal = document.getElementById('density-val');
     const nextBtn = document.getElementById('next-btn');
+    const azulMsg = document.getElementById('azul-msg');
 
     let totalRotation = 0;
     let lastAngle = null;
@@ -231,16 +143,17 @@
         const touch = e.touches[0];
         const rect = container.getBoundingClientRect();
         
-        // Corrected Coordinate Math for iPhone
-        const lx = touch.clientX - rect.left - 70; // Centers the 140px ladle
-        const ly = touch.clientY - rect.top - 70;
+        // Accurate coordinates relative to the pot center
+        const lx = touch.clientX - rect.left; 
+        const ly = touch.clientY - rect.top;
         
-        ladle.style.left = lx + 'px';
-        ladle.style.top = ly + 'px';
+        // Update ladle position
+        ladle.style.left = (lx - 60) + 'px'; 
+        ladle.style.top = (ly - 60) + 'px';
 
-        // Rotation math for Density
-        const dx = (lx + 70) - (rect.width / 2);
-        const dy = (ly + 70) - (rect.height / 2);
+        // Calculate rotation around the pot center
+        const dx = lx - (rect.width / 2);
+        const dy = ly - (rect.height / 2);
         const angle = Math.atan2(dy, dx);
         
         if (lastAngle !== null) {
@@ -249,14 +162,16 @@
             if (diff < -Math.PI) diff += Math.PI * 2;
             
             totalRotation += Math.abs(diff);
-            const progress = Math.min((totalRotation / (Math.PI * 15)) * 100, 100);
+            // 20 Full circles to reach 100% density
+            const progress = Math.min((totalRotation / (Math.PI * 40)) * 100, 100);
             
             densityVal.innerText = Math.floor(progress);
-            // Rotates ladle head to follow the circle
-            ladle.style.transform = `rotate(${angle + 1.5}rad)`; 
+            ladle.style.transform = `translate(-50%, -50%) rotate(${angle + 1.5}rad)`; 
 
+            if (progress > 50) azulMsg.innerText = "ALMOST VISCOUS...";
             if (progress >= 100) {
                 isDone = true;
+                azulMsg.innerText = "DENSITY OPTIMAL.";
                 nextBtn.style.display = "block";
                 if(navigator.vibrate) navigator.vibrate(200);
             }
