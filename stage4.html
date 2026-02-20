@@ -39,16 +39,18 @@
             text-shadow: 0 0 10px var(--neon-cyan), 2px 2px #000; 
         }
 
-        /* The Customer Sprite (Target) */
-        #customer-container {
-            position: absolute; 
-            top: 25vh; /* Positioned behind the kitchen island */
-            left: 50%;
-            transform: translateX(-50%); 
-            width: 160px;
-            transition: left 1.2s ease-in-out;
-            z-index: 10;
-        }
+        /* Grounded Customer Sprite */
+#customer-container {
+    position: absolute; 
+    /* Lowered from 25vh to 45vh to hit the floor */
+    top: 45vh; 
+    left: 50%;
+    transform: translateX(-50%); 
+    width: 220px; /* Made him slightly larger since he's 'closer' now */
+    transition: left 1.2s ease-in-out;
+    z-index: 10;
+}
+
         
         #customer-img { 
             width: 100%; 
