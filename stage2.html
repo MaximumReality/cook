@@ -11,40 +11,50 @@
         #ui-text { position: absolute; top: 65px; left: 20px; z-index: 50; pointer-events: none; }
         .stat { color: var(--neon-blue); font-size: 20px; font-weight: bold; }
 
-         #pot-wrapper {
-        position: absolute; top: 55%; left: 50%;
-        transform: translate(-50%, -50%);
-        width: 340px; height: 340px;
-        /* This ensures nothing spills outside the bowl area */
-        overflow: hidden; 
-    }
+        #pot-stage {
+            position: absolute; top: 55%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 320px; height: 320px;
+        }
 
-    /* THE SOUP (Back Layer) */
-    #harira-soup {
-        position: absolute;
-        top: 25%; left: 10%; width: 80%; height: 55%;
-        background: radial-gradient(circle, #8b4513, #4a3219);
-        border-radius: 50%; 
-        z-index: 1; 
-    }
+        /* 1. BACK OF THE BOWL */
+        #bowl-under {
+            position: absolute; inset: 0;
+            width: 100%; z-index: 1;
+        }
 
-    /* THE LADLE (Middle Layer) */
-    #ladle-img {
-        position: absolute;
-        width: 140px; height: auto;
-        z-index: 2; /* Sits above the soup */
-        pointer-events: none;
-    }
+        /* 2. THE SOUP CONTAINER (The Mask) */
+        #soup-container {
+            position: absolute;
+            top: 20%; left: 10%; 
+            width: 80%; height: 45%; /* Adjusted to fit bowl opening */
+            border-radius: 50%;
+            overflow: hidden;
+            z-index: 2;
+        }
 
-    /* THE BOWL (Top Layer - Front Rim Effect) */
-    #bowl-img {
-        position: absolute; 
-        inset: 0;
-        width: 100%; height: auto;
-        z-index: 3; /* Sits ABOVE the ladle handle */
-        pointer-events: none;
-    }
+        #harira-liquid {
+            width: 100%; height: 100%;
+            background: radial-gradient(circle, #8b4513, #4a3219);
+        }
 
+        /* 3. THE LADLE */
+        #ladle-img {
+            position: absolute;
+            width: 120px; 
+            z-index: 3;
+            pointer-events: none;
+            top: 0; left: 0; /* Important for JS math */
+        }
+
+        /* 4. FRONT RIM OVERLAY */
+        #bowl-over {
+            position: absolute; inset: 0;
+            width: 100%; z-index: 4; 
+            pointer-events: none;
+            /* Only show the front bottom half of the bowl image */
+            clip-path: inset(40% 0 0 0); 
+        }
 
         #azul-hud {
             position: absolute; top: 60px; right: 20px;
@@ -73,12 +83,15 @@
     <div id="azul-msg" style="color: var(--neon-blue); padding: 5px;">STIRRING...</div>
 </div>
 
-<div id="pot-wrapper">
-    <div id="harira-soup"></div>
-    
-    <img src="ladle.png" id="ladle-img">
-    
-    <img src="bowl.png" id="bowl-img">
+<div id="pot-stage">
+    <img src="bowl.png" id="bowl-under">
+
+    <div id="soup-container">
+        <div id="harira-liquid"></div>
+        <img src="ladle.png" id="ladle-img">
+    </div>
+
+    <img src="bowl.png" id="bowl-over">
 </div>
 
 <button id="next-btn" onclick="window.location.href='stage3.html'">ADD THE SPICE</button>
@@ -88,7 +101,7 @@
     music.loop = true;
 
     const ladle = document.getElementById('ladle-img');
-    const pot = document.getElementById('pot-wrapper');
+    const pot = document.getElementById('pot-stage'); // Corrected ID
     const densityVal = document.getElementById('density-val');
     const azulMsg = document.getElementById('azul-msg');
     const nextBtn = document.getElementById('next-btn');
@@ -97,7 +110,6 @@
     let lastAngle = null;
     let isDone = false;
 
-    // Start music on interaction
     window.addEventListener('touchstart', () => { if(music.paused) music.play(); }, {once: true});
 
     window.addEventListener('touchmove', (e) => {
@@ -106,12 +118,16 @@
         
         const touch = e.touches[0];
         const rect = pot.getBoundingClientRect();
+        
+        // Center of the pot for rotation math
         const centerX = rect.left + rect.width / 2;
         const centerY = rect.top + rect.height / 2;
 
-        // Position Ladle
-        const lx = touch.clientX - rect.left - 70;
-        const ly = touch.clientY - rect.top - 70;
+        // Position Ladle relative to the container
+        // We subtract 60 (half of ladle width 120) to center it on finger
+        const lx = touch.clientX - rect.left - 60;
+        const ly = touch.clientY - rect.top - 60;
+        
         ladle.style.left = lx + 'px';
         ladle.style.top = ly + 'px';
 
@@ -126,10 +142,11 @@
             if (diff < -Math.PI) diff += Math.PI * 2;
             
             totalRotation += Math.abs(diff);
-            const progress = Math.min((totalRotation / (Math.PI * 20)) * 100, 100);
+            const progress = Math.min((totalRotation / (Math.PI * 15)) * 100, 100);
             
             densityVal.innerText = Math.floor(progress);
-            ladle.style.transform = `rotate(${angle}rad)`;
+            // Rotates the ladle to follow the circular path
+            ladle.style.transform = `rotate(${angle + 1.5}rad)`; 
 
             if (progress >= 100) {
                 isDone = true;
