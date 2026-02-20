@@ -23,70 +23,70 @@
             background: #000;
             color: white;
             font-family: 'Courier New', monospace;
-            /* THE MAGIC COMBO FOR CENTERING */
             display: flex;
             flex-direction: column;
-            justify-content: center; /* Centers vertically */
-            align-items: center;     /* Centers horizontally */
+            justify-content: center; /* Perfect vertical centering */
+            align-items: center; 
             height: 100vh;
             width: 100vw;
             overflow: hidden;
             box-sizing: border-box;
-            /* This ensures we stay inside the Safari bars without touching them */
+            /* Protects against the notch and Safari bar */
             padding: env(safe-area-inset-top) 20px env(safe-area-inset-bottom) 20px;
         }
 
-        /* Grouping content to keep the spacing tight and centered */
         #game-launcher {
             display: flex;
             flex-direction: column;
             align-items: center;
             width: 100%;
-            max-width: 350px;
-            gap: 20px; /* Consistent gap between all elements */
+            max-width: 360px;
+            gap: 25px; /* Spacing between the "floated" elements */
         }
 
         #header-nav {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 15px;
+            gap: 20px;
         }
 
         .chef-thumb {
-            width: 80px;
-            height: 80px;
+            width: 95px; /* Restored larger, confident size */
+            height: 95px;
             border-radius: 50%;
             border: 3px solid var(--neon-cyan);
-            box-shadow: 0 0 15px var(--neon-cyan);
+            box-shadow: 0 0 20px var(--neon-cyan);
+            /* Removed object-fit to prevent squishing if image is already square */
             animation: pulse-glow 2s infinite ease-in-out;
         }
 
         .home-link {
             text-decoration: none;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             color: white;
             background: rgba(255, 0, 255, 0.1);
-            padding: 10px 15px;
+            padding: 12px 20px;
             border-radius: 12px;
             border: 2px solid var(--neon-pink);
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 8px;
             box-shadow: 0 0 10px var(--neon-pink);
         }
 
         h1 {
-            font-size: 2rem;
+            font-size: 2.2rem;
             color: var(--neon-pink);
-            text-shadow: 0 0 10px var(--neon-pink);
+            text-shadow: 0 0 15px var(--neon-pink);
             margin: 0;
             text-align: center;
+            letter-spacing: 2px;
         }
 
         .mission-box {
             border: 2px solid var(--neon-cyan);
-            padding: 15px;
+            padding: 20px;
             background: rgba(0, 255, 255, 0.05);
             box-shadow: 0 0 15px var(--neon-cyan);
             border-radius: 15px;
@@ -94,11 +94,11 @@
             box-sizing: border-box;
         }
 
-        .log-text { font-size: 0.85rem; color: var(--neon-cyan); line-height: 1.4; }
+        .log-text { font-size: 0.85rem; color: var(--neon-cyan); line-height: 1.6; }
 
         .begin-btn {
             width: 100%;
-            padding: 20px 0;
+            padding: 22px 0;
             background: var(--neon-green);
             color: #000;
             border: none;
@@ -112,15 +112,14 @@
 
         @keyframes pulse-glow {
             0%, 100% { box-shadow: 0 0 10px var(--neon-cyan); transform: scale(1); }
-            50% { box-shadow: 0 0 20px var(--neon-cyan); transform: scale(1.03); }
+            50% { box-shadow: 0 0 25px var(--neon-cyan); transform: scale(1.05); }
         }
 
-        /* Extra squeeze for very small heights (Toolbar + Landscape) */
-        @media screen and (max-height: 600px) {
-            #game-launcher { gap: 10px; }
-            .chef-thumb { width: 50px; height: 50px; }
-            h1 { font-size: 1.5rem; }
-            .log-text { font-size: 0.75rem; }
+        /* Adjusts only if the Safari toolbar takes up too much room */
+        @media screen and (max-height: 720px) {
+            #game-launcher { gap: 15px; }
+            .chef-thumb { width: 80px; height: 80px; }
+            h1 { font-size: 1.8rem; }
         }
     </style>
 </head>
@@ -137,16 +136,18 @@
         <h1>HARIRA QUEST</h1>
         
         <div class="mission-box">
-    <div class="log-text">
-        <strong style="color: white;">[LOG]:</strong> SYSTEM ONLINE <br>
-        <strong style="color: white;">[INTEL]:</strong> Mochkil is out of lentils. <br>
-        <strong style="color: white;">[AZUL]:</strong> 99% flavor deficit. <br><br>
-        <strong style="color: white;">[OBJECTIVES]:</strong><br>
-        • SNATCH: Lentils & Garlic <br> • DODGE: The Roaches 🪳 <br>   <br>       • SPICE: Add the Flavor Enhancement<br>     • STIR: The Quantum Pot <br>
-        • SERVE: Feed the Hacker Cats
-    </div>
-</div>
-
+            <div class="log-text">
+                <strong style="color: white;">[LOG]:</strong> SYSTEM ONLINE <br>
+                <strong style="color: white;">[INTEL]:</strong> Mochkil is out of lentils. <br>
+                <strong style="color: white;">[AZUL]:</strong> 99% flavor deficit. <br><br>
+                <strong style="color: white;">[OBJECTIVES]:</strong><br>
+                • SNATCH: The Moving Ingredients <br>
+                • DODGE: The Roaches 🪳 <br>
+                • STIR: The Quantum Pot <br>
+                • SPICE: Add Flavor Enhancement <br>
+                • SERVE: Feed the Hacker Cats
+            </div>
+        </div>
 
         <button class="begin-btn" onclick="startGame()">BEGIN MISSION</button>
     </div>
