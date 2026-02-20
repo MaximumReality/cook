@@ -23,6 +23,35 @@
             text-align: center;
             overflow: hidden;
         }
+        
+        /* Splash Screen Overlay */
+        #splash-screen {
+            position: fixed;
+            inset: 0;
+            background: url('image.png') no-repeat center center;
+            background-size: cover;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 80px;
+            z-index: 1000;
+            transition: opacity 0.5s ease;
+        }
+
+        .start-trigger {
+            background: var(--neon-pink);
+            color: white;
+            padding: 20px 40px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            border-radius: 50px;
+            box-shadow: 0 0 20px var(--neon-pink);
+            text-transform: uppercase;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* Mission Briefing UI */
         h1 {
             font-size: 2.5rem;
             color: var(--neon-pink);
@@ -37,30 +66,32 @@
             max-width: 80%;
             border-radius: 15px;
         }
-        .start-btn {
+        .backstory { font-size: 0.9rem; color: var(--neon-cyan); line-height: 1.4; }
+        
+        .begin-mission-btn {
             margin-top: 30px;
-            padding: 20px 40px;
+            padding: 15px 35px;
             background: var(--neon-green);
             color: #000;
             border: none;
-            font-size: 1.2rem;
             font-weight: bold;
-            border-radius: 50px;
+            border-radius: 10px;
             cursor: pointer;
-            box-shadow: 0 0 20px var(--neon-green);
         }
-        .start-btn:active { transform: scale(0.95); }
-        .backstory { font-size: 0.9rem; color: var(--neon-cyan); line-height: 1.4; }
     </style>
 </head>
 <body>
+
+    <div id="splash-screen">
+        <button class="start-trigger" onclick="initializeSystem()">Initialize System</button>
+    </div>
 
     <h1>HARIRA QUEST</h1>
     
     <div class="mission-box">
         <p class="backstory">
-            REALITY CHECK: Mochkil is out of lentils. <br>
-            Azul has calculated a 99% flavor deficit. <br><br>
+            <strong>REALITY CHECK:</strong> Mochkil is out of lentils. <br>
+            <strong>AZUL:</strong> Calculated a 99% flavor deficit. <br><br>
             STAGE 1: COLLECT THE INGREDIENTS <br>
             STAGE 2: THE MASH <br>
             STAGE 3: THE SPICE <br>
@@ -68,8 +99,26 @@
         </p>
     </div>
 
-    <button class="start-btn" onclick="window.location.href='stage1.html'">INITIALIZE COOKING</button>
+    <button class="begin-mission-btn" onclick="window.location.href='stage1.html'">BEGIN MISSION</button>
 
+    <script>
+        const music = new Audio('8-bit-music.mp3');
+        music.loop = true;
+
+        function initializeSystem() {
+            // Start the vibe
+            music.play().catch(e => console.log("Audio waiting for interaction"));
+            
+            // Fade out splash
+            const splash = document.getElementById('splash-screen');
+            splash.style.opacity = '0';
+            setTimeout(() => {
+                splash.style.display = 'none';
+            }, 500);
+            
+            // Haptic feedback for iPhone
+            if (navigator.vibrate) navigator.vibrate(50);
+        }
+    </script>
 </body>
 </html>
-
