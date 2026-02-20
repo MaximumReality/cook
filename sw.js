@@ -1,4 +1,4 @@
-const CACHE_NAME = 'harira-quest-v4.9'; 
+const CACHE_NAME = 'harira-quest-v5'; 
 const ASSETS_TO_CACHE = [
   '/',
   'index.html',
@@ -15,6 +15,7 @@ const ASSETS_TO_CACHE = [
   'mochkil-harira.png',  // Game Sprite
   'mochkil-harira1.PNG', // Thumbnail
   'azul-hacker.png',
+  'azul-loading.PNG',
   'azul-insight.png',
   
   // Environment & Props
