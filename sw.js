@@ -1,4 +1,4 @@
-const CACHE_NAME = 'harira-quest-v4.3😺🥣'; 
+const CACHE_NAME = 'harira-quest-v4.4'; 
 const ASSETS_TO_CACHE = [
   '/',
   'index.html',
@@ -8,7 +8,6 @@ const ASSETS_TO_CACHE = [
   'stage3.html',
   'stage4.html',
   'victory.html',
-  'sw.js',
   'manifest.json',
   'README.md',
   'LICENSE',
