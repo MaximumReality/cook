@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>404 | Spatial Anomaly</title>
+    <style>
+        :root {
+            --neon-pink: #FF00FF;
+            --neon-cyan: #00FFFF;
+        }
+
+        body {
+            margin: 0;
+            background: #000;
+            color: white;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+            overflow: hidden;
+            padding: 20px;
+        }
+
+        .insight-container {
+            position: relative;
+            margin-bottom: 30px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .hacker-cat {
+            width: 180px;
+            height: auto;
+            filter: drop-shadow(0 0 15px var(--neon-cyan));
+        }
+
+        h1 {
+            color: var(--neon-pink);
+            font-size: 4rem;
+            margin: 0;
+            text-shadow: 2px 2px #000, 0 0 20px var(--neon-pink);
+            letter-spacing: 5px;
+        }
+
+        .error-msg {
+            color: var(--neon-cyan);
+            font-size: 1rem;
+            max-width: 320px;
+            line-height: 1.6;
+            margin: 25px 0;
+            border-left: 3px solid var(--neon-pink);
+            padding-left: 15px;
+            text-align: left;
+        }
+
+        .return-btn {
+            padding: 18px 35px;
+            background: rgba(0, 255, 255, 0.1);
+            border: 2px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 0 15px var(--neon-cyan);
+            transition: 0.3s;
+        }
+
+        .return-btn:active {
+            transform: scale(0.95);
+            background: var(--neon-cyan);
+            color: #000;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        #timer { color: var(--neon-pink); font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="insight-container">
+        <img src="azul-insight.png" class="hacker-cat" alt="Azul Insight">
+    </div>
+
+    <h1>404</h1>
+    
+    <div class="error-msg">
+        <strong>[AZUL.INSIGHT]:</strong> <br>
+        Spatial coordinates corrupted. <br>
+        You have drifted into a flavorless void. <br><br>
+        Rerouting to Cyber Kitchen in <span id="timer">5</span>s...
+    </div>
+
+    <a href="index.html" class="return-btn">Initialize Reroute</a>
+
+    <script>
+        let timeLeft = 5;
+        const timerElement = document.getElementById('timer');
+
+        // Automatic countdown to return to index.html
+        const countdown = setInterval(() => {
+            timeLeft--;
+            timerElement.textContent = timeLeft;
+            if (timeLeft <= 0) {
+                clearInterval(countdown);
+                window.location.href = 'index.html';
+            }
+        }, 1000);
+    </script>
+
+</body>
+</html>
