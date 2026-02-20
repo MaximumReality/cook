@@ -1,344 +1,128 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script>!function(){const e=["maximumreality.github.io","maximumreality.xyz"];e.includes(window.location.hostname)||window.location.hostname.includes("localhost")||(document.documentElement.innerHTML='<body style="background:#000;color:#f0f;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-family:monospace;margin:0;"><h1 style="text-shadow:2px 2px #0ff">ACCESS DENIED</h1><p style="color:#0ff">[ REALITY COMPROMISED ]</p><p>Locked to MaximumReality.xyz</p><p style="font-size:.8rem;margin-top:20px">Ticket #404-POO: Unauthorized Mirror.</p></body>',window.stop())}();</script>
-    <link rel="apple-touch-icon" href="bessara_icon_180.png">
-<link rel="icon" type="image/png" href="bessara_icon_180.png" sizes="180x180">
-
-<link rel="icon" type="image/png" href="bessara_icon_180.png" sizes="192x192">
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
-<title>Mochkil's Snack Attack | Maximum Reality</title>
-
-<style>
-:root {
-    --neon-green: #39FF14;
-    --neon-pink: #FF00FF;
-    --neon-blue: #00FFEF;
-}
-
-body {
-    margin: 0;
-    background: #000 url('mochkils_kitchen.PNG') center/cover fixed;
-    height: 100vh;
-    overflow: hidden;
-    font-family: 'Courier New', Courier, monospace;
-}
-
-/* SCREENS */
-#welcome-screen, #game-screen { position: absolute; inset: 0; }
-
-#welcome-screen {
-    background: rgba(0,0,0,0.8);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 100;
-}
-
-/* UI - ADJUSTED FOR IPHONE PRO MAX */
-#ui {
-    position: absolute;
-    top: 65px; /* Clear Dynamic Island */
-    left: 20px;
-    color: var(--neon-green);
-    font-size: 20px;
-    font-weight: bold;
-    text-shadow: 2px 2px #000;
-    z-index: 20;
-    pointer-events: none;
-}
-
-#stars {
-    font-size: 26px;
-    display: block;
-    margin-top: 8px;
-    filter: drop-shadow(0 0 5px var(--neon-green));
-}
-
-#progress-container {
-    position: absolute;
-    top: 100px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 70%;
-    height: 14px;
-    border: 2px solid var(--neon-blue);
-    border-radius: 10px;
-    background: rgba(0,255,239,0.1);
-    z-index: 20;
-    display: none;
-}
-
-#progress-bar {
-    height: 100%; width: 0%;
-    background: linear-gradient(90deg, var(--neon-blue), var(--neon-green));
-    border-radius: 8px;
-}
-
-/* BUTTONS */
-.menu-btn {
-    width: 280px; padding: 20px; margin: 10px;
-    font-size: 20px; font-weight: bold;
-    border-radius: 15px; border: none; cursor: pointer;
-    box-shadow: 0 0 15px var(--neon-green);
-}
-
-.btn-infinite { background: var(--neon-blue); box-shadow: 0 0 15px var(--neon-blue); }
-
-#home-btn, #sound-btn {
-    position: absolute; right: 20px; padding: 10px 15px;
-    border-radius: 10px; font-weight: bold; cursor: pointer; z-index: 30;
-}
-#home-btn { top: 65px; background: var(--neon-pink); display: none; }
-#sound-btn { top: 115px; background: var(--neon-blue); }
-
-canvas { position: absolute; inset: 0; z-index: 5; }
-
-#victory-wrapper {
-    position: fixed; inset: 0; display: none;
-    justify-content: center; align-items: center;
-    background: #000; z-index: 1000; opacity: 0;
-    transition: opacity 0.5s ease;
-}
-#victory-wrapper video { max-width: 90%; max-height: 90%; object-fit: contain; }
-
-h1 { color: var(--neon-pink); text-shadow: 3px 3px #000; text-align: center; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Harira Harvest | Maximum Reality</title>
+    <style>
+        :root { --neon-green: #39FF14; --neon-cyan: #00FFFF; --neon-pink: #FF00FF; }
+        body { margin: 0; background: #000; overflow: hidden; font-family: monospace; }
+        
+        #ui { 
+            position: absolute; top: 65px; left: 20px; 
+            color: var(--neon-cyan); font-size: 18px; z-index: 10; 
+            text-shadow: 2px 2px #000;
+        }
+        .checklist { color: var(--neon-green); margin-top: 5px; }
+        canvas { position: absolute; inset: 0; }
+    </style>
 </head>
-
 <body>
 
-<div id="welcome-screen">
-    <h1>SNACK ATTACK<br>BESSARA BLAST</h1>
-    <button class="menu-btn" onclick="startGame('levels')">GOAL MODE (1000)</button>
-    <button class="menu-btn btn-infinite" onclick="startGame('infinite')">INFINITE CHAOS</button>
-    <button class="menu-btn" onclick="location.href='https://MaximumReality.xyz'">🏠 MAIN SITE</button>
-</div>
-
-<div id="game-screen" style="display:none;">
-    <div id="ui">
-        BASIRAH: <span id="score">0</span><br>
-        <span id="stars"></span><br>
-        🏆 BEST: <span id="best">0</span>
+<div id="ui">
+    RECIPE: HARIRA BASE<br>
+    <div id="check-list" class="checklist">
+        - Chickpeas: 0/5<br>
+        - Lentils: 0/5<br>
+        - Garlic Claws: 0/2
     </div>
-    <div id="progress-container"><div id="progress-bar"></div></div>
-    <button id="home-btn" onclick="goHome()">🏠 HOME</button>
-    <button id="sound-btn">🔊</button>
-    <canvas id="gameCanvas"></canvas>
 </div>
 
-<div id="victory-wrapper">
-    <video id="victory-video" playsinline preload="auto">
-        <source src="victory_scene.MP4" type="video/mp4">
-    </video>
-</div>
+<canvas id="gameCanvas"></canvas>
 
 <script>
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
-canvas.width = innerWidth;
-canvas.height = innerHeight;
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
-const scoreEl = document.getElementById('score');
-const starsEl = document.getElementById('stars');
-const bestEl = document.getElementById('best');
-const progressBar = document.getElementById('progress-bar');
-const progressCont = document.getElementById('progress-container');
-const welcome = document.getElementById('welcome-screen');
-const game = document.getElementById('game-screen');
-const homeBtn = document.getElementById('home-btn');
-const soundBtn = document.getElementById('sound-btn');
-const victoryWrapper = document.getElementById('victory-wrapper');
-const victory = document.getElementById('victory-video');
-
-/* ASSETS */
-const chefHappy = new Image(); chefHappy.src = 'mochkil_happy.png';
-const chefChaos = new Image(); chefChaos.src = 'mochkil_chaos.png';
-const azul = new Image(); azul.src = 'azul_insight.png';
-const beanImg = new Image(); beanImg.src = 'fava_bean.png';
-
-/* AUDIO */
-const music = new Audio('snack_attack_theme.mp3'); music.loop = true; music.volume = 0.4;
-const straightFireSFX = new Audio('straight_fire.mp3');
-const beastModeIntro = new Audio('fava.mp3');
-
-let soundOn = localStorage.getItem('soundOn') !== 'false';
-function applySound(){
-    music.muted = !soundOn; straightFireSFX.muted = !soundOn;
-    beastModeIntro.muted = !soundOn; victory.muted = !soundOn;
-    soundBtn.textContent = soundOn ? '🔊' : '🔈';
-}
-applySound();
-soundBtn.onclick = () => { soundOn = !soundOn; localStorage.setItem('soundOn', soundOn); applySound(); };
-
-/* GAME STATE */
-let score = 0;
-let best = localStorage.getItem('mochkil_best') || 0;
-bestEl.textContent = best;
+// Game State
 let chefX = canvas.width / 2;
 let items = [];
-let gameOn = false;
-let mode = 'levels';
-let sugar = false;
-let michelinStars = 0;
-let isBeastMode = false;
-const goal = 1000;
-const milestone = 100;
-const floorY = canvas.height - 150;
+let gameActive = true;
 
-/* MODES & GLITCHES */
-function triggerCrash() {
-    sugar = true;
-    canvas.style.filter = "blur(5px) hue-rotate(180deg) invert(0.2)";
-    setTimeout(() => { sugar = false; canvas.style.filter = "none"; }, 2500);
-}
+const recipe = {
+    chickpea: { count: 0, target: 5, color: '#f5deb3', label: 'Chickpeas' },
+    lentil: { count: 0, target: 5, color: '#a52a2a', label: 'Lentils' },
+    garlic: { count: 0, target: 2, color: '#ffffff', label: 'Garlic Claws' }
+};
 
-function checkBeastMode() {
-    if (score > 0 && score % milestone === 0) {
-        michelinStars++;
-        starsEl.innerText = "⭐".repeat(michelinStars);
-        isBeastMode = true;
-        if(soundOn) { beastModeIntro.currentTime = 0; beastModeIntro.play(); }
-        setTimeout(() => { isBeastMode = false; }, 4000);
-    }
-}
+const ingredientTypes = ['chickpea', 'lentil', 'garlic'];
 
-class Item {
-    constructor(type) {
-        this.type = type;
-        this.x = Math.random() * (canvas.width - 60) + 30;
+class Ingredient {
+    constructor() {
+        this.type = ingredientTypes[Math.floor(Math.random() * ingredientTypes.length)];
+        this.x = Math.random() * (canvas.width - 40) + 20;
         this.y = -50;
-        this.speed = type === 'bean' ? (4 + Math.random() * 3) : 8;
-        this.rotation = Math.random() * Math.PI * 2;
+        this.speed = 3 + Math.random() * 3;
     }
     update() {
-        const boost = isBeastMode ? 1.7 : 1;
-        this.y += this.speed * boost;
-        this.rotation += 0.05;
-        if (this.y > floorY - 100 && this.y < floorY && this.x > chefX - 60 && this.x < chefX + 60) {
-            if (this.type === 'bean') {
-                score += isBeastMode ? 20 : 10;
-                scoreEl.textContent = score;
-                if (score > best) { best = score; bestEl.textContent = best; localStorage.setItem('mochkil_best', best); }
-                if (score % 50 === 0 && soundOn) { straightFireSFX.currentTime = 0; straightFireSFX.play(); }
-                checkBeastMode();
-                if (mode === 'levels') {
-                    progressBar.style.width = Math.min(score / goal * 100, 100) + '%';
-                    if (score >= goal) win();
-                }
-            } else { triggerCrash(); }
-            this.y = canvas.height + 500;
+        this.y += this.speed;
+        // Collision with Chef (Bottom of screen)
+        if (this.y > canvas.height - 150 && this.y < canvas.height - 100 &&
+            this.x > chefX - 60 && this.x < chefX + 60) {
+            
+            recipe[this.type].count = Math.min(recipe[this.type].count + 1, recipe[this.type].target);
+            updateUI();
+            this.y = canvas.height + 100; // Remove item
+            checkWin();
         }
     }
     draw() {
-        if (this.type === 'bean') {
-            ctx.save();
-            ctx.translate(this.x, this.y);
-            ctx.rotate(this.rotation);
-            ctx.shadowBlur = 15; ctx.shadowColor = '#39FF14';
-            if (beanImg.complete) { ctx.drawImage(beanImg, -22, -22, 44, 44); }
-            else { ctx.fillStyle = '#98FB98'; ctx.beginPath(); ctx.ellipse(0,0,18,12,0,0,Math.PI*2); ctx.fill(); }
-            ctx.restore();
-        } else {
-            ctx.font = '45px Arial'; ctx.fillText('🍪', this.x - 22, this.y);
-        }
+        ctx.fillStyle = recipe[this.type].color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, 15, 0, Math.PI * 2);
+        ctx.fill();
+        // Add a neon glow
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = recipe[this.type].color;
     }
 }
 
-function startGame(m){
-    mode = m; score = 0; michelinStars = 0; items = [];
-    scoreEl.textContent = '0'; starsEl.textContent = '';
-    progressBar.style.width = '0%';
-    welcome.style.display = 'none'; game.style.display = 'block';
-    homeBtn.style.display = 'block';
-    progressCont.style.display = m === 'levels' ? 'block' : 'none';
-    music.currentTime = 0; music.play();
-    gameOn = true; loop();
+function updateUI() {
+    const list = document.getElementById('check-list');
+    list.innerHTML = `
+        - Chickpeas: ${recipe.chickpea.count}/${recipe.chickpea.target}<br>
+        - Lentils: ${recipe.lentil.count}/${recipe.lentil.target}<br>
+        - Garlic Claws: ${recipe.garlic.count}/${recipe.garlic.target}
+    `;
 }
 
-function goHome(){ gameOn = false; music.pause(); location.reload(); }
+function checkWin() {
+    if (recipe.chickpea.count >= recipe.chickpea.target &&
+        recipe.lentil.count >= recipe.lentil.target &&
+        recipe.garlic.count >= recipe.garlic.target) {
+        gameActive = false;
+        setTimeout(() => { window.location.href = 'stage2.html'; }, 500);
+    }
+}
 
-function win(){
-    gameOn = false;
-    music.pause();
+// Input Handling
+window.addEventListener('touchmove', e => {
+    e.preventDefault();
+    chefX = e.touches[0].clientX;
+}, {passive: false});
 
-    // Hide UI
-    canvas.style.display = 'none';
-    document.getElementById('ui').style.display = 'none';
-    homeBtn.style.display = 'none';
-    progressCont.style.display = 'none';
-    soundBtn.style.display = 'none';
+function loop() {
+    if (!gameActive) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Prepare Video
-    victoryWrapper.style.display = 'flex';
-    victory.style.display = 'block';
+    if (Math.random() < 0.03) items.push(new Ingredient());
     
-    // iPhone Fix: Force a reload and mute briefly to bypass autoplay block
-    victory.load();
-    victory.muted = !soundOn; // Stay muted if sound is off, otherwise trust the toggle
-    
-    let playPromise = victory.play();
+    items.forEach((item, index) => {
+        item.update();
+        item.draw();
+        if (item.y > canvas.height) items.splice(index, 1);
+    });
 
-    if (playPromise !== undefined) {
-        playPromise.then(_ => {
-            // Video started! Fade in the wrapper
-            let fadeIn = 0;
-            const fadeInterval = setInterval(()=>{
-                fadeIn += 0.05;
-                victoryWrapper.style.opacity = Math.min(fadeIn,1);
-                if(fadeIn >= 1) clearInterval(fadeInterval);
-            }, 30);
-        }).catch(error => {
-            console.log("iPhone blocked autoplay. Adding emergency play button.");
-            // Fallback: If iPhone still blocks it, just reload so the game doesn't hang
-            setTimeout(() => { location.reload(); }, 2000);
-        });
-    }
+    // Draw Chef Placeholder (Swap with mochkil_happy.png later)
+    ctx.fillStyle = '#FF00FF';
+    ctx.fillRect(chefX - 50, canvas.height - 130, 100, 20); 
 
-    victory.onended = ()=>{
-        location.reload();
-    };
-}
-
-
-/* INPUT */
-canvas.addEventListener('mousemove', e => chefX = e.clientX);
-canvas.addEventListener('touchmove', e => { e.preventDefault(); chefX = e.touches[0].clientX; },{passive:false});
-
-/* THE ENGINE */
-function loop(){
-    if(!gameOn) return;
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-
-    if(Math.random() < 0.05) items.push(new Item('bean'));
-    if(Math.random() < 0.01) items.push(new Item('cookie'));
-    items.forEach(i => { i.update(); i.draw(); });
-
-    const sprite = sugar ? chefChaos : chefHappy;
-    if(sprite.complete) ctx.drawImage(sprite, chefX-75, floorY-130, 150, 150);
-
-    /* AZUL HACKER CAT RENDER */
-    if(isBeastMode && azul.complete){
-        ctx.save();
-        // Add a "Hologram Glitch" flicker
-        if(Math.random() > 0.1) {
-            ctx.shadowBlur = 30; ctx.shadowColor = '#00FFEF';
-            ctx.globalAlpha = 0.8;
-            ctx.drawImage(azul, canvas.width/2 - 100, 160, 200, 200);
-            
-            ctx.fillStyle = '#fff'; ctx.font = 'bold 26px Courier New'; ctx.textAlign = 'center';
-            ctx.fillText('AZUL INSIGHT: BEAST MODE!', canvas.width/2, 400);
-        }
-        ctx.restore();
-    }
     requestAnimationFrame(loop);
 }
+
+loop();
 </script>
 </body>
 </html>
