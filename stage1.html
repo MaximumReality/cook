@@ -6,32 +6,46 @@
     <title>Harira Harvest | Maximum Reality</title>
     <style>
         :root { --neon-green: #39FF14; --neon-cyan: #00FFFF; --neon-pink: #FF00FF; }
-       body {
-    margin: 0;
-    padding: 0;
-    background: url('cyber-kitchen-bg.PNG') no-repeat center center fixed;
-    background-size: cover;
-    height: 100vh;
-    overflow: hidden;
-}
-
-/* Add a dark overlay so your game pieces (bowl/ladle) pop */
-body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.4); /* Adjust darkness here */
-    z-index: -1;
-}
-        #ui { 
-            position: absolute; top: 65px; left: 20px; 
-            color: var(--neon-cyan); font-size: 18px; z-index: 10; 
-            text-shadow: 2px 2px #000; pointer-events: none;
+        
+        body {
+            margin: 0;
+            padding: 0;
+            /* Match case of your filename exactly on GitHub */
+            background: url('cyber-kitchen-bg.PNG') no-repeat center center fixed;
+            background-size: cover;
+            height: 100vh;
+            overflow: hidden;
+            background-color: #000;
         }
+
+        /* TRANSLUCENT BLACK OVERLAY */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6); 
+            z-index: 0; /* Sits behind everything but the background image */
+        }
+
+        #ui { 
+            position: absolute; 
+            top: 85px; /* Pushed down to clear the camera hole */
+            left: 20px; 
+            color: var(--neon-cyan); 
+            font-size: 18px; 
+            z-index: 100; /* Force it to the front */
+            text-shadow: 2px 2px #000; 
+            pointer-events: none;
+            font-family: 'Courier New', monospace;
+        }
+
         .checklist { color: var(--neon-green); margin-top: 5px; }
-        canvas { position: absolute; inset: 0; }
 
-
+        canvas { 
+            position: absolute; 
+            inset: 0; 
+            z-index: 10; /* Sits above the background overlay */
+        }
     </style>
 </head>
 <body>
@@ -50,8 +64,14 @@ body::before {
 <script>
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+
+// Proper resizing for iPhone 14 Pro Max
+function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resize);
+resize();
 
 let chefX = canvas.width / 2;
 let items = [];
@@ -73,6 +93,7 @@ const sprites = {
     garlic: new Image(),
     mochkil: new Image()
 };
+// Ensure these filenames match your GitHub exactly (check .png vs .PNG)
 sprites.chickpea.src = 'chickpeas.png';
 sprites.lentil.src = 'lentil.png';
 sprites.garlic.src = 'garlic.png';
@@ -82,25 +103,17 @@ window.addEventListener('touchstart', () => { if (music.paused) music.play(); },
 
 class Ingredient {
     constructor() {
-        // LENTIL FLOOD LOGIC: 60% Lentils, 20% Chickpeas, 20% Garlic
         let rand = Math.random();
         if (rand < 0.6) this.type = 'lentil';
         else if (rand < 0.8) this.type = 'chickpea';
         else this.type = 'garlic';
 
-        this.x = Math.random() * (canvas.width - 40) + 20;
+        this.x = Math.random() * (canvas.width - 60) + 30;
         this.y = -50;
-        this.speed = 3 + Math.random() * 3;
+        this.speed = 3 + Math.random() * 4;
     }
     update() {
         this.y += this.speed;
-        if (this.y > canvas.height - 150 && this.y < canvas.height - 100 &&
-            this.x > chefX - 60 && this.x < chefX + 60) {
-            recipe[this.type].count = Math.min(recipe[this.type].count + 1, recipe[this.type].target);
-            updateUI();
-            this.y = canvas.height + 500;
-            checkWin();
-        }
     }
     draw() {
         const img = sprites[this.type];
@@ -143,7 +156,6 @@ function checkWin() {
 
 window.addEventListener('touchmove', e => {
     e.preventDefault();
-    // Clamping chefX so Mochkil doesn't leave the screen edges
     let touchX = e.touches[0].clientX;
     chefX = Math.max(60, Math.min(touchX, canvas.width - 60));
 }, {passive: false});
@@ -152,21 +164,20 @@ function loop() {
     if (!gameActive) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    if (Math.random() < 0.04) items.push(new Ingredient());
+    if (Math.random() < 0.05) items.push(new Ingredient());
     
     items.forEach((item, index) => {
         item.update();
         item.draw();
         
-        // Check for catch with Haptic Feedback
-        if (item.y > canvas.height - 150 && item.y < canvas.height - 100 &&
-            item.x > chefX - 60 && item.x < chefX + 60) {
+        // CATCH LOGIC
+        if (item.y > canvas.height - 180 && item.y < canvas.height - 80 &&
+            item.x > chefX - 70 && item.x < chefX + 70) {
             
             recipe[item.type].count = Math.min(recipe[item.type].count + 1, recipe[item.type].target);
             updateUI();
             
-            // Trigger haptic tap on catch
-            if (navigator.vibrate) navigator.vibrate(10); 
+            if (navigator.vibrate) navigator.vibrate(15); 
             
             items.splice(index, 1);
             checkWin();
@@ -175,18 +186,18 @@ function loop() {
         if (item.y > canvas.height + 100) items.splice(index, 1);
     });
 
-    // Draw Mochkil with a Neon "Hacker" Glow
     if (sprites.mochkil.complete) {
         ctx.shadowBlur = 20;
         ctx.shadowColor = 'var(--neon-cyan)';
-        ctx.drawImage(sprites.mochkil, chefX - 60, canvas.height - 160, 120, 120);
+        // Draw Mochkil slightly higher so he isn't cut off by the home bar
+        ctx.drawImage(sprites.mochkil, chefX - 60, canvas.height - 180, 120, 120);
         ctx.shadowBlur = 0;
     }
 
     requestAnimationFrame(loop);
 }
 
-}
+// Fixed: The loop starts properly now
 loop();
 </script>
 </body>
