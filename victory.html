@@ -10,34 +10,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 
     <title>Mission Success | Maximum Reality</title>
-
     <style>
-        :root { 
-            --neon-green: #39FF14; 
-            --neon-cyan: #00FFFF; 
-            --neon-pink: #FF00FF; 
-        }
-
+        :root { --neon-green: #39FF14; --neon-cyan: #00FFFF; --neon-pink: #FF00FF; }
+        
         body { 
-            margin: 0; 
-            background: #000; 
-            color: white; 
-            font-family: 'Courier New', monospace; 
-            overflow: hidden;
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center;
+            margin: 0; background: #000; color: white; 
+            font-family: 'Courier New', monospace; overflow: hidden;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
             height: 100vh;
         }
-
+        
         #victory-header {
             text-align: center; 
             margin-top: env(safe-area-inset-top, 20px);
             margin-bottom: 10px; 
             z-index: 10;
         }
-
+        
         .glitch-title {
             font-size: 1.8rem;
             color: var(--neon-green);
@@ -58,19 +47,12 @@
             transition: height 0.3s ease;
         }
 
-        /* SCREEN HEIGHT CHECK: If the toolbar is visible, shrink the video */
         @media screen and (max-height: 700px) {
-            .video-container {
-                max-width: 220px;
-            }
+            .video-container { max-width: 220px; }
             .glitch-title { font-size: 1.4rem; }
         }
 
-        iframe, video {
-            width: 100%; 
-            height: 100%; 
-            border: none;
-        }
+        iframe, video { width: 100%; height: 100%; border: none; }
 
         .btn-home {
             margin-top: 20px; 
@@ -111,7 +93,7 @@
         <p style="color: var(--neon-cyan); margin: 0; font-size: 0.9rem;">MOCHKIL & AZUL APPROVE</p>
     </div>
 
-    <div class="video-container">
+    <div class="video-container" id="video-wrapper">
         <iframe 
             id="missionVideo"
             src="https://www.youtube.com/embed/nxcdDiZgwnE?autoplay=1&mute=1&modestbranding=1&rel=0&playsinline=1" 
@@ -123,24 +105,27 @@
     <a href="index.html" class="btn-home">REPLAY MISSION</a>
 
     <script>
-        // Vibrate on page load
         if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 300]);
 
-        // Offline fallback for video
-        const iframe = document.getElementById('missionVideo');
+        // Swap iframe for offline video if no network
+        const container = document.getElementById('video-wrapper');
         if (!navigator.onLine) {
-            const container = iframe.parentNode;
             container.innerHTML = `
-                <video autoplay playsinline controls>
+                <video autoplay playsinline controls muted>
                     <source src="mission-victory.mp4" type="video/mp4">
                 </video>
             `;
         }
 
-        // Optional: reload when connection changes
+        // Reload when network changes
         window.addEventListener('online', () => location.reload());
-        window.addEventListener('offline', () => location.reload());
+        window.addEventListener('offline', () => {
+            container.innerHTML = `
+                <video autoplay playsinline controls muted>
+                    <source src="mission-victory.mp4" type="video/mp4">
+                </video>
+            `;
+        });
     </script>
-
 </body>
 </html>
