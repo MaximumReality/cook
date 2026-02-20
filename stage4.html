@@ -3,16 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <link rel="manifest" href="manifest.json">
-
-<meta name="apple-mobile-web-app-capable" content="yes">
-
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
-<meta name="apple-mobile-web-app-title" content="Harira Quest">
-
-<link rel="apple-touch-icon" href="mochkil-harira.PNG">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Harira Quest">
+    <link rel="apple-touch-icon" href="mochkil-harira.PNG">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 
     <title>The Serve | Maximum Reality</title>
     <style>
@@ -30,41 +25,42 @@
             touch-action: none;
         }
 
-        /* Dark overlay for contrast */
         body::before {
             content: ""; position: fixed; inset: 0;
             background: rgba(0, 0, 0, 0.4); z-index: 1;
         }
         
-        #ui { position: absolute; top: 85px; width: 100%; text-align: center; z-index: 100; }
+        #ui { position: absolute; top: 100px; width: 100%; text-align: center; z-index: 100; }
         .count-box { font-size: 22px; color: var(--neon-cyan); text-shadow: 0 0 10px var(--neon-cyan), 2px 2px #000; }
 
-        /* AZUL (Background Layer) */
+        /* AZUL (Deep Background) */
         #azul-container {
             position: absolute; 
-            top: 15vh; 
-            width: 160px;
-            z-index: 5; /* Lower than Mochkil */
+            top: 25vh; 
+            width: 150px;
+            z-index: 5;
             filter: drop-shadow(0 0 10px var(--neon-cyan));
+            transition: left 0.1s linear;
         }
 
-        /* MOCHKIL (Foreground Layer) */
+        /* MOCHKIL (Mid-ground) */
         #mochkil-grounded {
             position: absolute; 
-            top: 35vh; 
-            width: 280px; 
-            z-index: 20; /* Higher than Azul so his hat covers Azul's legs */
+            top: 48vh; 
+            width: 260px; 
+            z-index: 20;
+            transition: left 0.1s linear;
         }
 
-        /* THE BOWL (Highest Layer) */
+        /* THE BOWL (Foreground) */
         #bowl-projectile {
             position: absolute; 
-            bottom: 60px; 
+            bottom: 80px; 
             left: 50%;
             transform: translateX(-50%); 
-            width: 200px; 
+            width: 180px; 
             z-index: 100; 
-            transition: bottom 0.4s ease-in, transform 0.4s, width 0.4s;
+            transition: bottom 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s, width 0.4s, opacity 0.2s;
         }
 
         #feedback {
@@ -106,27 +102,28 @@
     let isFlicking = false;
     let startY, startTime;
 
-    // Movement Variables
+    // Side-to-Side Movement
     let azulX = 10;
     let mochkilX = 70;
-    let azulDir = 1.2;    // Azul is fast
-    let mochkilDir = -0.7; // Mochkil moves opposite
+    let azulDir = 1.4;    // Azul is agile
+    let mochkilDir = -0.8; // Mochkil is steady
 
     function animate() {
-        // Move Azul
+        // Bounce Azul
         azulX += azulDir;
-        if (azulX > 80 || azulX < 5) azulDir *= -1;
+        if (azulX > 75 || azulX < 5) azulDir *= -1;
         azulEl.style.left = azulX + '%';
 
-        // Move Mochkil
+        // Bounce Mochkil
         mochkilX += mochkilDir;
-        if (mochkilX > 75 || mochkilX < 5) mochkilDir *= -1;
+        if (mochkilX > 70 || mochkilX < 5) mochkilDir *= -1;
         mochkilEl.style.left = mochkilX + '%';
 
         requestAnimationFrame(animate);
     }
     animate();
 
+    // Flick Detection
     window.addEventListener('touchstart', (e) => {
         if (music.paused) music.play().catch(err => {});
         if (isFlicking) return;
@@ -138,45 +135,56 @@
         if (isFlicking) return;
         const distance = startY - e.changedTouches[0].clientY;
         const duration = Date.now() - startTime;
-        if (distance > 100 && duration < 300) flickBowl();
+        
+        // If it's a fast swipe up
+        if (distance > 80 && duration < 300) flickBowl();
     });
 
     function flickBowl() {
         isFlicking = true;
-        // Flight destination: targeting Azul's depth
-        bowl.style.bottom = "75vh";
-        bowl.style.width = "75px"; 
-        bowl.style.transform = "translateX(-50%) rotate(15deg)";
+        bowl.style.bottom = "68vh"; // Toss height
+        bowl.style.width = "70px";  // Shrink for perspective
+        bowl.style.transform = "translateX(-50%) rotate(20deg)";
+        
+        if (navigator.vibrate) navigator.vibrate(30);
         setTimeout(checkHit, 400);
     }
 
     function checkHit() {
         const bRect = bowl.getBoundingClientRect();
         const aRect = azulEl.getBoundingClientRect();
+        const bCenter = bRect.left + (bRect.width / 2);
 
-        // Check collision with Azul
-        if (bRect.left < aRect.right && bRect.right > aRect.left) {
+        // Collision Check with Azul's catch zone
+        if (bCenter > aRect.left && bCenter < aRect.right) {
             fed++;
             fedCountEl.innerText = fed;
             showFeedback("QUANTUM CATCH!", "var(--neon-cyan)");
-            if (navigator.vibrate) navigator.vibrate(100);
-            if (fed >= 5) setTimeout(() => { window.location.href = 'victory.html'; }, 1000);
+            if (navigator.vibrate) navigator.vibrate([100, 40, 100]);
+            
+            if (fed >= 5) {
+                setTimeout(() => { window.location.href = 'victory.html'; }, 1000);
+                return;
+            }
         } else {
-            showFeedback("MISSED AZUL!", "red");
-            if (navigator.vibrate) navigator.vibrate([50, 50]);
+            showFeedback("MISSED AZUL!", "#FF3131");
+            if (navigator.vibrate) navigator.vibrate(200);
         }
 
-        // Reset Bowl
+        // Reset the bowl
         setTimeout(() => {
-            bowl.style.transition = "none";
-            bowl.style.bottom = "60px";
-            bowl.style.width = "200px";
-            bowl.style.transform = "translateX(-50%)";
-            setTimeout(() => { 
-                bowl.style.transition = "bottom 0.4s ease-in, transform 0.4s, width 0.4s";
-                isFlicking = false; 
-            }, 50);
-        }, 600);
+            bowl.style.opacity = "0";
+            setTimeout(() => {
+                bowl.style.transition = "none";
+                bowl.style.bottom = "80px";
+                bowl.style.width = "180px";
+                bowl.style.transform = "translateX(-50%)";
+                void bowl.offsetWidth; // Force CSS refresh
+                bowl.style.transition = "bottom 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s, width 0.4s, opacity 0.2s";
+                bowl.style.opacity = "1";
+                isFlicking = false;
+            }, 200);
+        }, 300);
     }
 
     function showFeedback(txt, color) {
