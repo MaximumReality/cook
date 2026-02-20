@@ -3,131 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>The Spice | Maximum Reality</title>
+    <title>The Spice | Snack Attack</title>
     <style>
-        :root { --neon-orange: #FFAC1C; --neon-pink: #FF00FF; --neon-cyan: #00FFFF; }
-        body { margin: 0; background: #000; overflow: hidden; font-family: 'Courier New', monospace; color: white; }
+        :root { --neon-cyan: #00FFFF; --neon-pink: #FF00FF; --neon-green: #39FF14; }
         
-        #ui { position: absolute; top: 65px; width: 100%; text-align: center; z-index: 100; pointer-events: none; }
-        .score-box { font-size: 24px; color: var(--neon-orange); text-shadow: 0 0 10px var(--neon-orange); }
-
-        /* The Static Bowl from Stage 2 */
-        #bowl-container {
-            position: absolute; bottom: 100px; left: 50%;
-            transform: translateX(-50%); width: 300px;
-        }
-        #bowl-img { width: 100%; height: auto; }
-
-        /* Moving Spice Slider */
-        #scanner-track {
-            position: absolute; top: 200px; left: 10%; width: 80%;
-            height: 4px; background: rgba(0, 255, 255, 0.2);
-        }
-        #spice-preview {
-            position: absolute; top: -30px; left: 0;
-            width: 60px; height: 60px; pointer-events: none;
+        body {
+            margin: 0; padding: 0;
+            background: url('cyber-kitchen-bg.PNG') no-repeat center center fixed;
+            background-size: cover;
+            height: 100vh; overflow: hidden; background-color: #000;
+            font-family: 'Courier New', monospace;
         }
 
-        /* Azul Feedback */
-        #azul-verdict {
-            position: absolute; top: 350px; width: 100%; text-align: center;
-            font-size: 20px; color: var(--neon-cyan); display: none;
+        body::before {
+            content: ""; position: fixed; inset: 0;
+            background: rgba(0, 0, 0, 0.6); z-index: 0;
+        }
+
+        #ui { 
+            position: absolute; 
+            top: 85px; /* Clear Dynamic Island */
+            left: 20px; 
+            color: var(--neon-cyan); 
+            z-index: 100; 
+            text-shadow: 2px 2px #000;
         }
         
+        /* Grounded Bowl using the 'vh' fix */
+        #target-bowl {
+            position: absolute;
+            top: 75vh; 
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 320px; 
+            z-index: 10;
+        }
+
+        /* Oscillating Garlic */
+        #garlic-container {
+            position: absolute;
+            top: 150px;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            z-index: 20;
+        }
+
+        #garlic-claw {
+            position: absolute;
+            width: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: moveHorizontal 2.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes moveHorizontal {
+            from { left: 15%; }
+            to { left: 85%; }
+        }
+
+        /* Drop Animation */
+        .dropping {
+            animation: none !important; /* Stop horizontal move */
+            transition: top 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.6s;
+            top: 70vh !important;
+            transform: translateX(-50%) scale(0.6) !important;
+            opacity: 0;
+        }
+
         #next-btn {
-            display: none; position: absolute; bottom: 40px; left: 50%;
-            transform: translateX(-50%); padding: 20px 40px;
-            background: var(--neon-pink); border: none; color: white;
-            font-weight: bold; border-radius: 50px; z-index: 200;
+            display: none; position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); padding: 20px 40px;
+            background: var(--neon-green); border: none; color: black;
+            font-weight: bold; border-radius: 50px; z-index: 500;
+            box-shadow: 0 0 20px var(--neon-green);
         }
     </style>
 </head>
-<body onclick="dropGarnish()">
+<body onclick="dropGarlic()">
 
-<div id="ui">
-    <div class="score-box">FLAVOR LOCK: <span id="percent">0</span>%</div>
-    <div style="font-size: 12px; color: var(--neon-cyan);">TAP TO ADD GARLIC CLAWS</div>
+<div id="ui">MISSION: CALIBRATE FLAVOR<br>Garlic Claws: <span id="score">0</span>/3</div>
+
+<div id="garlic-container">
+    <img src="garlic.png" id="garlic-claw">
 </div>
 
-<div id="scanner-track">
-    <img src="garlic.png" id="spice-preview">
-</div>
+<img src="bowl-with-soup.png" id="target-bowl">
 
-<div id="azul-verdict">AZUL: CALIBRATING...</div>
-
-<div id="bowl-container">
-    <img src="bowl.png" id="bowl-img">
-</div>
-
-<button id="next-btn" onclick="window.location.href='stage4.html'">FINAL STAGE: SERVE</button>
+<button id="next-btn" onclick="window.location.href='win.html'">SERVE MEAL</button>
 
 <script>
-    const spice = document.getElementById('spice-preview');
-    const verdict = document.getElementById('azul-verdict');
-    const percentEl = document.getElementById('percent');
+    let caught = 0;
+    const claw = document.getElementById('garlic-claw');
+    const bowl = document.getElementById('target-bowl');
+    const scoreText = document.getElementById('score');
     const nextBtn = document.getElementById('next-btn');
-    
-    let xPos = 0;
-    let xDir = 3; // Speed of the moving garlic
-    let active = true;
-    let successfulDrops = 0;
-    const targetDrops = 2; // Your "Two Claws" rule!
 
-    function moveSlider() {
-        if (!active) return;
-        xPos += xDir;
-        if (xPos > 90 || xPos < 0) xDir *= -1;
-        spice.style.left = xPos + '%';
-        requestAnimationFrame(moveSlider);
+    function dropGarlic() {
+        if (claw.classList.contains('dropping')) return;
+
+        // Capture current left position before dropping
+        const currentLeft = window.getComputedStyle(claw).left;
+        claw.style.left = currentLeft;
+        claw.classList.add('dropping');
+        
+        const clawRect = claw.getBoundingClientRect();
+        const bowlRect = bowl.getBoundingClientRect();
+
+        // Check hit after the drop duration
+        setTimeout(() => {
+            const finalLeft = clawRect.left + (clawRect.width / 2);
+            
+            if (finalLeft > bowlRect.left && finalLeft < bowlRect.right) {
+                caught++;
+                scoreText.innerText = caught;
+                if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
+            }
+
+            if (caught >= 3) {
+                nextBtn.style.display = 'block';
+                claw.style.display = 'none';
+            } else {
+                // Reset for next claw
+                claw.classList.remove('dropping');
+                claw.style.top = "0px";
+                claw.style.opacity = "1";
+            }
+        }, 600);
     }
-
-    function dropGarnish() {
-        if (!active) return;
-        active = false;
-
-        // The "Sweet Spot" is the middle of the track (aligned with the bowl)
-        if (xPos > 38 && xPos < 52) {
-            successfulDrops++;
-            const progress = (successfulDrops / targetDrops) * 100;
-            percentEl.innerText = progress;
-
-            // Visual Drop
-            spice.style.transition = 'top 0.4s ease-in, opacity 0.4s';
-            spice.style.top = '400px';
-            spice.style.opacity = '0';
-
-            verdict.innerText = "AZUL: MOLECULAR PERFECTION";
-            verdict.style.display = 'block';
-
-            setTimeout(() => {
-                if (successfulDrops >= targetDrops) {
-                    nextBtn.style.display = 'block';
-                } else {
-                    resetGarnish();
-                }
-            }, 600);
-        } else {
-            verdict.innerText = "AZUL: CONCENTRATION FAILED - RETRY";
-            verdict.style.color = "red";
-            verdict.style.display = 'block';
-            setTimeout(() => {
-                verdict.style.display = 'none';
-                active = true;
-                moveSlider();
-            }, 1000);
-        }
-    }
-
-    function resetGarnish() {
-        spice.style.transition = 'none';
-        spice.style.top = '-30px';
-        spice.style.opacity = '1';
-        active = true;
-        verdict.style.display = 'none';
-        moveSlider();
-    }
-
-    moveSlider();
 </script>
 </body>
 </html>
