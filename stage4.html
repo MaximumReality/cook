@@ -150,7 +150,7 @@
         const bCenter = bRect.left + (bRect.width / 2);
 
         // Wider collision zone for Azul's hacker reflexes
-        if (bCenter > aRect.left - 20 && bCenter < aRect.right + 20) {
+        if (bCenter > aRect.left - 15 && bCenter < aRect.right + 15) {
             fed++;
             fedCountEl.innerText = fed;
             showFeedback("QUANTUM CATCH!", "var(--neon-cyan)");
