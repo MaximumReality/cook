@@ -11,48 +11,29 @@
         #ui-text { position: absolute; top: 65px; left: 20px; z-index: 50; pointer-events: none; }
         .stat { color: var(--neon-blue); font-size: 20px; font-weight: bold; }
 
-        /* MAIN CONTAINER */
-        #pot-stage {
+        /* The Game Area */
+        #game-container {
             position: absolute; top: 55%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 320px; height: 320px;
+            width: 350px; height: 350px;
         }
 
-        /* 1. BACK OF THE BOWL */
-        #bowl-under { position: absolute; inset: 0; width: 100%; z-index: 1; }
-
-        /* 2. THE SOUP ACTION ZONE (The Mask) */
-        #soup-container {
-            position: absolute;
-            top: 18%; left: 10%; 
-            width: 80%; height: 48%; 
-            border-radius: 50%;
-            overflow: hidden; /* This keeps the soup and ladle inside the bowl */
-            z-index: 2;
+        /* The New Combined Asset */
+        #bowl-img {
+            position: absolute; inset: 0;
+            width: 100%; height: auto;
+            z-index: 1;
         }
 
-        #harira-liquid {
-            width: 100%; height: 100%;
-            background: radial-gradient(circle, #8b4513, #4a3219);
-        }
-
-        /* 3. THE LADLE (Now inside the container) */
+        /* The Ladle - Sits on top of the soup */
         #ladle-img {
             position: absolute;
-            width: 100px; /* Sized down slightly for the bowl */
-            z-index: 3;
+            width: 140px; height: auto;
+            z-index: 10;
             pointer-events: none;
-            /* Start it in the middle */
-            top: 50%; left: 50%;
+            /* Start it slightly off-center */
+            top: 20%; left: 30%;
             transform-origin: center;
-        }
-
-        /* 4. FRONT RIM OVERLAY */
-        #bowl-over {
-            position: absolute; inset: 0;
-            width: 100%; z-index: 4; 
-            pointer-events: none;
-            clip-path: inset(45% 0 0 0); /* Shows only the front rim */
         }
 
         #azul-hud {
@@ -67,7 +48,6 @@
             transform: translateX(-50%); padding: 20px 40px;
             background: var(--neon-pink); border: none; color: white;
             font-weight: bold; border-radius: 50px; z-index: 200;
-            box-shadow: 0 0 20px var(--neon-pink);
         }
     </style>
 </head>
@@ -80,13 +60,9 @@
     <div id="azul-msg" style="color: var(--neon-blue); padding: 5px;">STIRRING...</div>
 </div>
 
-<div id="pot-stage">
-    <img src="bowl.png" id="bowl-under">
-    <div id="soup-container">
-        <div id="harira-liquid"></div>
-        <img src="ladle.png" id="ladle-img">
-    </div>
-    <img src="bowl.png" id="bowl-over">
+<div id="game-container">
+    <img src="bowl-with-soup.png" id="bowl-img">
+    <img src="ladle.png" id="ladle-img">
 </div>
 
 <button id="next-btn" onclick="window.location.href='stage3.html'">ADD THE SPICE</button>
@@ -96,9 +72,8 @@
     music.loop = true;
 
     const ladle = document.getElementById('ladle-img');
-    const soupZone = document.getElementById('soup-container');
+    const container = document.getElementById('game-container');
     const densityVal = document.getElementById('density-val');
-    const azulMsg = document.getElementById('azul-msg');
     const nextBtn = document.getElementById('next-btn');
 
     let totalRotation = 0;
@@ -112,20 +87,18 @@
         e.preventDefault();
         
         const touch = e.touches[0];
-        const rect = soupZone.getBoundingClientRect();
+        const rect = container.getBoundingClientRect();
         
-        // 1. Position Ladle relative to the SOUP ZONE container
-        const lx = touch.clientX - rect.left - 50; // 50 is half ladle width
-        const ly = touch.clientY - rect.top - 50;
+        // Corrected Coordinate Math for iPhone
+        const lx = touch.clientX - rect.left - 70; // Centers the 140px ladle
+        const ly = touch.clientY - rect.top - 70;
         
         ladle.style.left = lx + 'px';
         ladle.style.top = ly + 'px';
 
-        // 2. Calculate Rotation (for density)
-        const centerX = rect.width / 2;
-        const centerY = rect.height / 2;
-        const dx = (lx + 50) - centerX;
-        const dy = (ly + 50) - centerY;
+        // Rotation math for Density
+        const dx = (lx + 70) - (rect.width / 2);
+        const dy = (ly + 70) - (rect.height / 2);
         const angle = Math.atan2(dy, dx);
         
         if (lastAngle !== null) {
@@ -137,13 +110,11 @@
             const progress = Math.min((totalRotation / (Math.PI * 15)) * 100, 100);
             
             densityVal.innerText = Math.floor(progress);
-            // Visual tilt: +1.5 keeps the ladle bowl pointing to center
+            // Rotates ladle head to follow the circle
             ladle.style.transform = `rotate(${angle + 1.5}rad)`; 
 
             if (progress >= 100) {
                 isDone = true;
-                azulMsg.innerText = "DENSITY OPTIMAL";
-                azulMsg.style.color = "#39FF14";
                 nextBtn.style.display = "block";
                 if(navigator.vibrate) navigator.vibrate(200);
             }
