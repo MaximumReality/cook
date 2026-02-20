@@ -43,14 +43,18 @@
     .stat { color: var(--neon-blue); font-size: 20px; font-weight: bold; text-shadow: 2px 2px #000; }
 
     #pot-stage {
-        position: absolute; 
-        top: 55%; 
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 350px; 
-        height: 350px;
-        z-index: 10; /* Action layer above the background */
-    }
+    position: absolute; 
+    /* Changed from 55% to 65% to pull it off the ceiling */
+    top: 65%; 
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 350px; 
+    height: 350px;
+    z-index: 10;
+    /* This adds a little extra buffer from the top HUD */
+    margin-top: 20px; 
+}
+
 
     #bowl-img {
         width: 100%; 
