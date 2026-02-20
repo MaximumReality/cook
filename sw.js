@@ -1,4 +1,4 @@
-const CACHE_NAME = 'harira-quest-v4.5'; 
+const CACHE_NAME = 'harira-quest-v4.6'; 
 const ASSETS_TO_CACHE = [
   '/',
   'index.html',
@@ -10,11 +10,10 @@ const ASSETS_TO_CACHE = [
   'victory.html',
   'manifest.json',
   
-  
   // Favicon & Portraits
   'mochkil-harira.PNG',  // Favicon
   'mochkil-harira.png',  // Game Sprite
-  'mochkil-harira1.PNG', // Confident Chef Thumbnail
+  'mochkil-harira1.PNG', // Thumbnail
   'azul-hacker.png',
   'azul-insight.png',
   
@@ -37,45 +36,64 @@ const ASSETS_TO_CACHE = [
   'that-8-bit-music.mp3'
 ];
 
+// INSTALL: Add missing files and update changed ones
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
+    caches.open(CACHE_NAME).then(async (cache) => {
       console.log('Stocking the digital pantry...');
-      return cache.addAll(ASSETS_TO_CACHE);
+      const cachedRequests = await cache.keys();
+      const cachedUrls = cachedRequests.map(req => req.url.split('/').pop());
+
+      // Identify missing files
+      const missingAssets = ASSETS_TO_CACHE.filter(asset => !cachedUrls.includes(asset));
+
+      // Add missing files
+      await cache.addAll(missingAssets);
+
+      // Refresh existing cached files (force network check)
+      await Promise.all(
+        ASSETS_TO_CACHE.map(async (asset) => {
+          try {
+            const response = await fetch(asset, { cache: 'no-cache' });
+            if (response.ok) {
+              await cache.put(asset, response.clone());
+            }
+          } catch (err) {
+            console.warn('Failed to refresh asset:', asset, err);
+          }
+        })
+      );
     })
   );
   self.skipWaiting();
 });
 
+// ACTIVATE: Delete old caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
+    caches.keys().then((cacheNames) => 
+      Promise.all(
         cacheNames.map((cache) => {
           if (cache !== CACHE_NAME) {
             console.log('Cleaning the kitchen floor:', cache);
             return caches.delete(cache);
           }
         })
-      );
-    })
+      )
+    )
   );
   return self.clients.claim();
 });
 
-// SINGLE MERGED FETCH EVENT
+// FETCH: Pages → network first, Assets → cache first
 self.addEventListener('fetch', (event) => {
-  // 1. For Page Navigations: Try network first so you see code updates instantly
   if (event.request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request).catch(() => caches.match(event.request))
+      fetch(event.request).catch(() => caches.match(event.request) || caches.match('404.html'))
     );
   } else {
-    // 2. For Assets (Images/Audio): Cache first for that snappy arcade feel
     event.respondWith(
-      caches.match(event.request).then((response) => {
-        return response || fetch(event.request);
-      })
+      caches.match(event.request).then((response) => response || fetch(event.request))
     );
   }
 });
