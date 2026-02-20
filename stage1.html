@@ -8,9 +8,7 @@
         :root { --neon-green: #39FF14; --neon-cyan: #00FFFF; --neon-pink: #FF00FF; }
         
         body {
-            margin: 0;
-            padding: 0;
-            /* Match case of your filename exactly on GitHub */
+            margin: 0; padding: 0;
             background: url('cyber-kitchen-bg.PNG') no-repeat center center fixed;
             background-size: cover;
             height: 100vh;
@@ -24,16 +22,16 @@
             position: fixed;
             inset: 0;
             background: rgba(0, 0, 0, 0.6); 
-            z-index: 0; /* Sits behind everything but the background image */
+            z-index: 0; 
         }
 
         #ui { 
             position: absolute; 
-            top: 85px; /* Pushed down to clear the camera hole */
+            top: 85px; 
             left: 20px; 
             color: var(--neon-cyan); 
             font-size: 18px; 
-            z-index: 100; /* Force it to the front */
+            z-index: 100; 
             text-shadow: 2px 2px #000; 
             pointer-events: none;
             font-family: 'Courier New', monospace;
@@ -44,7 +42,7 @@
         canvas { 
             position: absolute; 
             inset: 0; 
-            z-index: 10; /* Sits above the background overlay */
+            z-index: 10; 
         }
     </style>
 </head>
@@ -65,7 +63,21 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-// Proper resizing for iPhone 14 Pro Max
+/* MUSIC FIX FOR IOS */
+const music = new Audio('8-bit-music.mp3'); 
+music.loop = true;
+music.preload = 'auto';
+
+// Force play on first touch anywhere
+const startMusic = () => {
+    music.play().catch(e => console.log("Audio waiting for interaction"));
+    window.removeEventListener('touchstart', startMusic);
+    window.removeEventListener('click', startMusic);
+};
+window.addEventListener('touchstart', startMusic);
+window.addEventListener('click', startMusic);
+
+/* GAME LOGIC */
 function resize() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -83,23 +95,16 @@ const recipe = {
     garlic: { count: 0, target: 2, color: '#ffffff' }
 };
 
-/* ASSETS */
-const music = new Audio('8-bit-music.mp3'); 
-music.loop = true;
-
 const sprites = {
     chickpea: new Image(),
     lentil: new Image(),
     garlic: new Image(),
     mochkil: new Image()
 };
-// Ensure these filenames match your GitHub exactly (check .png vs .PNG)
 sprites.chickpea.src = 'chickpeas.png';
 sprites.lentil.src = 'lentil.png';
 sprites.garlic.src = 'garlic.png';
 sprites.mochkil.src = 'mochkil-harira.png';
-
-window.addEventListener('touchstart', () => { if (music.paused) music.play(); }, { once: true });
 
 class Ingredient {
     constructor() {
@@ -112,9 +117,7 @@ class Ingredient {
         this.y = -50;
         this.speed = 3 + Math.random() * 4;
     }
-    update() {
-        this.y += this.speed;
-    }
+    update() { this.y += this.speed; }
     draw() {
         const img = sprites[this.type];
         if (img.complete) {
@@ -170,34 +173,27 @@ function loop() {
         item.update();
         item.draw();
         
-        // CATCH LOGIC
         if (item.y > canvas.height - 180 && item.y < canvas.height - 80 &&
             item.x > chefX - 70 && item.x < chefX + 70) {
             
             recipe[item.type].count = Math.min(recipe[item.type].count + 1, recipe[item.type].target);
             updateUI();
-            
             if (navigator.vibrate) navigator.vibrate(15); 
-            
             items.splice(index, 1);
             checkWin();
         }
-
         if (item.y > canvas.height + 100) items.splice(index, 1);
     });
 
     if (sprites.mochkil.complete) {
         ctx.shadowBlur = 20;
         ctx.shadowColor = 'var(--neon-cyan)';
-        // Draw Mochkil slightly higher so he isn't cut off by the home bar
         ctx.drawImage(sprites.mochkil, chefX - 60, canvas.height - 180, 120, 120);
         ctx.shadowBlur = 0;
     }
-
     requestAnimationFrame(loop);
 }
 
-// Fixed: The loop starts properly now
 loop();
 </script>
 </body>
