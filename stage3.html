@@ -93,6 +93,19 @@
 <button id="next-btn" onclick="window.location.href='win.html'">SERVE MEAL</button>
 
 <script>
+    /* MUSIC SETUP */
+    const music = new Audio('funny-arcade-game.mp3'); 
+    music.loop = true;
+    music.preload = 'auto';
+
+    // Unlock audio on the first tap (which also drops the first garlic!)
+    const startMusic = () => {
+        music.play().catch(e => console.log("Audio waiting for chef..."));
+        window.removeEventListener('touchstart', startMusic);
+    };
+    window.addEventListener('touchstart', startMusic);
+
+    /* UPDATED DROP LOGIC */
     let caught = 0;
     const claw = document.getElementById('garlic-claw');
     const bowl = document.getElementById('target-bowl');
@@ -102,29 +115,30 @@
     function dropGarlic() {
         if (claw.classList.contains('dropping')) return;
 
-        // Capture current left position before dropping
+        // Visual and Audio feedback
+        claw.classList.add('dropping');
+        
         const currentLeft = window.getComputedStyle(claw).left;
         claw.style.left = currentLeft;
-        claw.classList.add('dropping');
         
         const clawRect = claw.getBoundingClientRect();
         const bowlRect = bowl.getBoundingClientRect();
 
-        // Check hit after the drop duration
         setTimeout(() => {
             const finalLeft = clawRect.left + (clawRect.width / 2);
             
             if (finalLeft > bowlRect.left && finalLeft < bowlRect.right) {
                 caught++;
                 scoreText.innerText = caught;
-                if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
+                // Double vibrate for a "Splash" feel
+                if (navigator.vibrate) navigator.vibrate([15, 10, 15]);
             }
 
             if (caught >= 3) {
                 nextBtn.style.display = 'block';
                 claw.style.display = 'none';
+                // Success sound could go here!
             } else {
-                // Reset for next claw
                 claw.classList.remove('dropping');
                 claw.style.top = "0px";
                 claw.style.opacity = "1";
@@ -132,5 +146,6 @@
         }, 600);
     }
 </script>
+
 </body>
 </html>
