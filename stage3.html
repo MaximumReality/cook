@@ -5,92 +5,129 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>The Spice | Maximum Reality</title>
     <style>
-        :root { --neon-green: #39FF14; --neon-orange: #FFAC1C; }
-        body { margin: 0; background: #000; overflow: hidden; font-family: 'Courier New', monospace; color: white; text-align: center; }
+        :root { --neon-orange: #FFAC1C; --neon-pink: #FF00FF; --neon-cyan: #00FFFF; }
+        body { margin: 0; background: #000; overflow: hidden; font-family: 'Courier New', monospace; color: white; }
         
-        #ui { position: absolute; top: 60px; width: 100%; z-index: 10; }
-        
-        #bowl {
+        #ui { position: absolute; top: 65px; width: 100%; text-align: center; z-index: 100; pointer-events: none; }
+        .score-box { font-size: 24px; color: var(--neon-orange); text-shadow: 0 0 10px var(--neon-orange); }
+
+        /* The Static Bowl from Stage 2 */
+        #bowl-container {
             position: absolute; bottom: 100px; left: 50%;
-            transform: translateX(-50%); width: 200px; height: 120px;
-            background: #6b4e31; border: 5px solid #444; border-radius: 0 0 100px 100px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            transform: translateX(-50%); width: 300px;
         }
+        #bowl-img { width: 100%; height: auto; }
 
         /* Moving Spice Slider */
-        #slider-track {
+        #scanner-track {
             position: absolute; top: 200px; left: 10%; width: 80%;
-            height: 10px; background: #222; border-radius: 5px;
+            height: 4px; background: rgba(0, 255, 255, 0.2);
         }
-        #spice-icon {
-            position: absolute; top: -15px; left: 0; font-size: 40px;
-            transition: none; pointer-events: none;
+        #spice-preview {
+            position: absolute; top: -30px; left: 0;
+            width: 60px; height: 60px; pointer-events: none;
         }
 
-        #azul-rating {
-            position: absolute; top: 350px; left: 50%; transform: translateX(-50%);
-            display: none; color: var(--neon-green); font-weight: bold;
-            text-shadow: 0 0 10px var(--neon-green);
+        /* Azul Feedback */
+        #azul-verdict {
+            position: absolute; top: 350px; width: 100%; text-align: center;
+            font-size: 20px; color: var(--neon-cyan); display: none;
         }
         
-        #finish-btn {
-            display: none; position: absolute; bottom: 50px; left: 50%;
-            transform: translateX(-50%); padding: 20px; background: #FF00FF;
-            border-radius: 15px; border: none; color: white; font-weight: bold;
+        #next-btn {
+            display: none; position: absolute; bottom: 40px; left: 50%;
+            transform: translateX(-50%); padding: 20px 40px;
+            background: var(--neon-pink); border: none; color: white;
+            font-weight: bold; border-radius: 50px; z-index: 200;
         }
     </style>
 </head>
-<body onclick="dropSpice()">
+<body onclick="dropGarnish()">
 
 <div id="ui">
-    <h2 style="color:var(--neon-orange)">STAGE 3: THE SPICE</h2>
-    <p>TAP TO DROP THE GARNISH</p>
+    <div class="score-box">FLAVOR LOCK: <span id="percent">0</span>%</div>
+    <div style="font-size: 12px; color: var(--neon-cyan);">TAP TO ADD GARLIC CLAWS</div>
 </div>
 
-<div id="slider-track">
-    <div id="spice-icon">🫒</div> </div>
+<div id="scanner-track">
+    <img src="garlic.png" id="spice-preview">
+</div>
 
-<div id="azul-rating">MOLECULAR PERFECTION!</div>
-<div id="bowl"></div>
+<div id="azul-verdict">AZUL: CALIBRATING...</div>
 
-<button id="finish-btn" onclick="window.location.href='stage4.html'">SERVE THE CROWD</button>
+<div id="bowl-container">
+    <img src="bowl.png" id="bowl-img">
+</div>
+
+<button id="next-btn" onclick="window.location.href='stage4.html'">FINAL STAGE: SERVE</button>
 
 <script>
-    const spice = document.getElementById('spice-icon');
-    const rating = document.getElementById('azul-rating');
-    const finishBtn = document.getElementById('finish-btn');
+    const spice = document.getElementById('spice-preview');
+    const verdict = document.getElementById('azul-verdict');
+    const percentEl = document.getElementById('percent');
+    const nextBtn = document.getElementById('next-btn');
     
-    let pos = 0;
-    let direction = 2;
+    let xPos = 0;
+    let xDir = 3; // Speed of the moving garlic
     let active = true;
+    let successfulDrops = 0;
+    const targetDrops = 2; // Your "Two Claws" rule!
 
-    function animateSlider() {
+    function moveSlider() {
         if (!active) return;
-        pos += direction;
-        if (pos > 90 || pos < 0) direction *= -1;
-        spice.style.left = pos + '%';
-        requestAnimationFrame(animateSlider);
+        xPos += xDir;
+        if (xPos > 90 || xPos < 0) xDir *= -1;
+        spice.style.left = xPos + '%';
+        requestAnimationFrame(moveSlider);
     }
 
-    function dropSpice() {
+    function dropGarnish() {
         if (!active) return;
         active = false;
-        
-        // Check if the spice is in the middle (between 40% and 55%)
-        if (pos > 40 && pos < 55) {
-            rating.style.display = 'block';
-            spice.style.top = '400px'; // Animates drop
-            spice.style.transition = 'top 0.5s ease-in';
-            setTimeout(() => { finishBtn.style.display = 'block'; }, 600);
+
+        // The "Sweet Spot" is the middle of the track (aligned with the bowl)
+        if (xPos > 38 && xPos < 52) {
+            successfulDrops++;
+            const progress = (successfulDrops / targetDrops) * 100;
+            percentEl.innerText = progress;
+
+            // Visual Drop
+            spice.style.transition = 'top 0.4s ease-in, opacity 0.4s';
+            spice.style.top = '400px';
+            spice.style.opacity = '0';
+
+            verdict.innerText = "AZUL: MOLECULAR PERFECTION";
+            verdict.style.display = 'block';
+
+            setTimeout(() => {
+                if (successfulDrops >= targetDrops) {
+                    nextBtn.style.display = 'block';
+                } else {
+                    resetGarnish();
+                }
+            }, 600);
         } else {
-            rating.innerText = "OFF BALANCE! TRY AGAIN";
-            rating.style.color = "red";
-            rating.style.display = 'block';
-            setTimeout(() => { active = true; rating.style.display = 'none'; animateSlider(); }, 1000);
+            verdict.innerText = "AZUL: CONCENTRATION FAILED - RETRY";
+            verdict.style.color = "red";
+            verdict.style.display = 'block';
+            setTimeout(() => {
+                verdict.style.display = 'none';
+                active = true;
+                moveSlider();
+            }, 1000);
         }
     }
 
-    animateSlider();
+    function resetGarnish() {
+        spice.style.transition = 'none';
+        spice.style.top = '-30px';
+        spice.style.opacity = '1';
+        active = true;
+        verdict.style.display = 'none';
+        moveSlider();
+    }
+
+    moveSlider();
 </script>
 </body>
 </html>
