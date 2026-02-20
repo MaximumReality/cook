@@ -1,4 +1,4 @@
-const CACHE_NAME = 'harira-quest-v4.4'; 
+const CACHE_NAME = 'harira-quest-v4.5'; 
 const ASSETS_TO_CACHE = [
   '/',
   'index.html',
@@ -9,8 +9,7 @@ const ASSETS_TO_CACHE = [
   'stage4.html',
   'victory.html',
   'manifest.json',
-  'README.md',
-  'LICENSE',
+  
   
   // Favicon & Portraits
   'mochkil-harira.PNG',  // Favicon
@@ -27,6 +26,9 @@ const ASSETS_TO_CACHE = [
   'chickpeas.png',
   'lentil.png',
   'ladle.png',
+
+  // Video
+  'mission-victory.mp4',
   
   // Audio
   'arcade-games-neon-munch.mp3',
