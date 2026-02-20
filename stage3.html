@@ -21,49 +21,27 @@
         }
 
         #ui { 
-            position: absolute; 
-            top: 85px; /* Clear Dynamic Island */
-            left: 20px; 
-            color: var(--neon-cyan); 
-            z-index: 100; 
-            text-shadow: 2px 2px #000;
+            position: absolute; top: 85px; left: 20px; 
+            color: var(--neon-cyan); z-index: 100; text-shadow: 2px 2px #000;
         }
         
-        /* Updated CSS for Layering */
-#game-zone {
-    position: absolute;
-    top: 75vh;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 320px;
-    height: 300px; /* Adjust this to match the height of your bowl */
-    overflow: hidden; /* THIS IS THE FIX: It clips anything that falls too low */
-    z-index: 30;
-}
-
-#target-bowl {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 10;
-}
-
-#garlic-container {
-    position: absolute;
-    top: -400px; /* Start way above the bowl */
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 5; /* Behind the bowl soup */
-}
+        #target-bowl {
+            position: absolute;
+            top: 75vh; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 320px; z-index: 30;
+        }
 
         #garlic-claw {
             position: absolute;
+            top: 150px; /* Back to a visible starting height */
             width: 80px;
             left: 50%;
             transform: translateX(-50%);
+            z-index: 20;
             animation: moveHorizontal 2.5s ease-in-out infinite alternate;
+            /* This clips the garlic so it cannot exist below 68% of the screen */
+            clip-path: inset(0 0 0 0); 
         }
 
         @keyframes moveHorizontal {
@@ -71,35 +49,30 @@
             to { left: 85%; }
         }
 
-        /* Updated Drop Animation */
-
-.dropping {
-    animation: none !important;
-    transition: top 0.4s ease-in, opacity 0.2s ease-in 0.2s;
-    /* Move it just deep enough into the soup */
-    top: 50px !important; 
-    opacity: 0;
-}
+        .dropping {
+            animation: none !important;
+            transition: top 0.4s ease-in, opacity 0.2s ease-in 0.2s;
+            top: 70vh !important; /* Drops to the soup line */
+            opacity: 0;
+        }
 
         .ripple {
-    position: absolute;
-    top: 68vh; 
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 20px;
-    height: 10px;
-    border: 3px solid var(--neon-cyan);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 25; /* Sits just behind the front rim but above the soup */
-    box-shadow: 0 0 15px var(--neon-cyan);
-    animation: ripple-out 0.6s ease-out forwards;
-}
+            position: absolute;
+            top: 68vh; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px; height: 10px;
+            border: 3px solid var(--neon-cyan);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 25;
+            box-shadow: 0 0 15px var(--neon-cyan);
+            animation: ripple-out 0.6s ease-out forwards;
+        }
 
-@keyframes ripple-out {
-    0% { width: 20px; height: 10px; opacity: 1; border-width: 4px; }
-    100% { width: 280px; height: 120px; opacity: 0; border-width: 1px; }
-}
+        @keyframes ripple-out {
+            0% { width: 20px; height: 10px; opacity: 1; border-width: 4px; }
+            100% { width: 280px; height: 120px; opacity: 0; border-width: 1px; }
+        }
 
         #next-btn {
             display: none; position: absolute; top: 50%; left: 50%;
@@ -114,38 +87,27 @@
 
 <div id="ui">MISSION: CALIBRATE FLAVOR<br>Garlic Claws: <span id="score">0</span>/3</div>
 
-<div id="game-zone">
-    <div id="garlic-container">
-        <img src="garlic.png" id="garlic-claw">
-    </div>
-    
-    <img src="bowl-with-soup.png" id="target-bowl">
-    
-    </div>
+<img src="garlic.png" id="garlic-claw">
 
+<img src="bowl-with-soup.png" id="target-bowl">
 
 <button id="next-btn" onclick="window.location.href='win.html'">SERVE MEAL</button>
 
 <script>
-    /* MUSIC SETUP */
     const music = new Audio('funny-arcade-game.mp3'); 
     music.loop = true;
-    music.preload = 'auto';
-
     const startMusic = () => {
-        music.play().catch(e => console.log("Audio waiting..."));
+        music.play().catch(e => {});
         window.removeEventListener('touchstart', startMusic);
     };
     window.addEventListener('touchstart', startMusic);
 
-    /* GAME VARIABLES */
     let caught = 0;
     const claw = document.getElementById('garlic-claw');
     const bowl = document.getElementById('target-bowl');
     const scoreText = document.getElementById('score');
     const nextBtn = document.getElementById('next-btn');
 
-    /* RIPPLE GENERATOR - Moved outside for better performance */
     function createRipple() {
         const ripple = document.createElement('div');
         ripple.className = 'ripple';
@@ -153,11 +115,9 @@
         ripple.addEventListener('animationend', () => ripple.remove());
     }
 
-    /* DROP LOGIC */
     function dropGarlic() {
         if (claw.classList.contains('dropping')) return;
 
-        // Capture horizontal position and trigger drop
         const currentLeft = window.getComputedStyle(claw).left;
         claw.style.left = currentLeft;
         claw.classList.add('dropping');
@@ -168,7 +128,6 @@
         setTimeout(() => {
             const finalLeft = clawRect.left + (clawRect.width / 2);
             
-            // Hit Detection (Only happens once now!)
             if (finalLeft > bowlRect.left && finalLeft < bowlRect.right) {
                 caught++;
                 scoreText.innerText = caught;
@@ -180,18 +139,15 @@
                 nextBtn.style.display = 'block';
                 claw.style.display = 'none';
             } else {
-                // Instant Reset logic
                 claw.style.transition = "none";
                 claw.classList.remove('dropping');
-                claw.style.top = "0px";
+                claw.style.top = "150px"; 
                 claw.style.opacity = "1";
-                void claw.offsetWidth; // Reflow
+                void claw.offsetWidth; 
                 claw.style.transition = ""; 
             }
-        }, 600);
+        }, 400); // Shorter timeout to match faster drop
     }
 </script>
-
-
 </body>
 </html>
