@@ -3,82 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Harira Quest | Maximum Reality</title>
+    <title>Snack Attack: Harira Edition</title>
     <style>
-        :root { --neon-pink: #FF00FF; --neon-cyan: #00FFFF; }
-
-        body { 
-            margin: 0; 
-            background: url('mochkil-harira.PNG') no-repeat center top; 
-            /* THE FIX: Use 100% width so the sides don't get cut off */
-            background-size: 100% auto; 
-            height: 100vh;
+        :root {
+            --neon-pink: #FF00FF;
+            --neon-cyan: #00FFFF;
+            --neon-green: #39FF14;
+        }
+        body {
+            margin: 0;
+            background: #000;
+            color: white;
+            font-family: 'Courier New', monospace;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-end; 
-            font-family: 'Courier New', monospace;
-            overflow: hidden;
-            background-color: #1a1a1a; /* Fills the bottom if the image is too short */
-        }
-
-        body::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.1);
-            z-index: 1;
-        }
-
-        #content-wrapper {
-            position: relative;
-            z-index: 10;
+            justify-content: center;
+            height: 100vh;
             text-align: center;
-            margin-bottom: 100px; 
+            overflow: hidden;
+        }
+        
+        /* Splash Screen (The Wide Wallpaper) */
+        #splash-screen {
+            position: fixed;
+            inset: 0;
+            background: url('mochkil-harira.PNG') no-repeat center top;
+            background-size: 100% auto;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 120px;
+            z-index: 1000;
+            transition: opacity 0.5s ease;
         }
 
-        .btn-start {
-            padding: 15px 25px;
-            background: rgba(0, 0, 0, 0.85);
-            border: 2px solid var(--neon-cyan);
+        .start-trigger {
+            background: rgba(0, 0, 0, 0.8);
             color: var(--neon-cyan);
-            font-size: 1.1rem;
+            padding: 20px 40px;
+            font-family: 'Courier New', monospace;
             font-weight: bold;
-            text-decoration: none;
-            border-radius: 8px;
-            box-shadow: 0 0 15px var(--neon-cyan);
+            border-radius: 12px;
+            box-shadow: 0 0 20px var(--neon-cyan);
             text-transform: uppercase;
+            border: 2px solid var(--neon-cyan);
+            cursor: pointer;
         }
 
-        /* 🏡 Lower & Slimmer Home Button */
-        .home-link {
-            position: absolute;
-            top: 110px; /* Dropped lower to clear the title and notch */
-            left: 15px;
+        /* Mission Briefing UI Layout */
+        #header-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            width: 90%;
+        }
+
+        .thumbnail {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 2px solid var(--neon-pink);
+            box-shadow: 0 0 10px var(--neon-pink);
+            object-fit: cover;
+        }
+
+        .home-btn {
             text-decoration: none;
             font-size: 0.9rem;
             color: white;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 6px 10px; /* Slimmer footprint */
-            border-radius: 6px;
+            background: rgba(255, 0, 255, 0.1);
+            padding: 10px 15px;
+            border-radius: 8px;
             border: 1px solid var(--neon-pink);
-            z-index: 100;
             display: flex;
             align-items: center;
             gap: 5px;
-            box-shadow: 0 0 8px var(--neon-pink);
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            color: var(--neon-pink);
+            text-shadow: 0 0 10px var(--neon-pink);
+            margin: 10px 0;
+        }
+
+        .mission-box {
+            border: 2px solid var(--neon-cyan);
+            padding: 20px;
+            background: rgba(0, 255, 255, 0.05);
+            box-shadow: 0 0 15px var(--neon-cyan);
+            max-width: 85%;
+            border-radius: 15px;
+            text-align: left;
+        }
+
+        .backstory { font-size: 0.85rem; color: var(--neon-cyan); line-height: 1.5; }
+        
+        .begin-mission-btn {
+            margin-top: 30px;
+            padding: 18px 40px;
+            background: var(--neon-green);
+            color: #000;
+            border: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 0 15px var(--neon-green);
         }
     </style>
 </head>
 <body>
 
-    <a href="https://MaximumReality.xyz" class="home-link">
-        <span>🏡</span> Home
-    </a>
-
-    <div id="content-wrapper">
-        <a href="stage1.html" class="btn-start">Start Harira Quest</a>
+    <div id="splash-screen">
+        <button class="start-trigger" onclick="initializeSystem()">Initialize System</button>
     </div>
 
+    <div id="header-container">
+        <img src="mochkil-harira.png" class="thumbnail" alt="Chef Mochkil">
+        
+        <a href="https://MaximumReality.xyz" class="home-btn">
+            <span>🏡</span> Home
+        </a>
+    </div>
+
+    <h1>HARIRA QUEST</h1>
+    
+    <div class="mission-box">
+        <div class="backstory">
+            <strong style="color: white;">[SYSTEM STATUS]:</strong> <br>
+            • Mochkil is out of lentils. <br>
+            • Azul calculated 99% flavor deficit. <br><br>
+            <strong style="color: white;">[OBJECTIVES]:</strong> <br>
+            1. COLLECT THE INGREDIENTS <br>
+            2. THE MASH & THE SPICE <br>
+            3. THE QUANTUM SERVE
+        </div>
+    </div>
+
+    <button class="begin-mission-btn" onclick="window.location.href='stage1.html'">BEGIN MISSION</button>
+
+    <script>
+        const music = new Audio('8-bit-music.mp3');
+        music.loop = true;
+
+        function initializeSystem() {
+            music.play().catch(e => {});
+            
+            const splash = document.getElementById('splash-screen');
+            splash.style.opacity = '0';
+            setTimeout(() => {
+                splash.style.display = 'none';
+            }, 500);
+            
+            if (navigator.vibrate) navigator.vibrate(50);
+        }
+    </script>
 </body>
 </html>
