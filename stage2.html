@@ -63,15 +63,18 @@
     }
 
     #ladle-img {
-        position: absolute;
-        width: 130px; 
-        height: auto;
-        z-index: 20; /* Stays on top of the soup */
-        pointer-events: none;
-        top: 30%; 
-        left: 30%;
-        transform-origin: center;
-    }
+    position: absolute;
+    width: 130px; 
+    height: auto;
+    z-index: 20;
+    pointer-events: none;
+    /* Changed from 30% to 50% so it starts inside the bowl area */
+    top: 50%; 
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transform-origin: center;
+}
+
 
     #azul-hud {
         position: absolute; 
