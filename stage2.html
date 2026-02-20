@@ -44,36 +44,32 @@
 
     #pot-stage {
     position: absolute; 
-    /* Changed from 55% to 65% to pull it off the ceiling */
-    top: 65%; 
+    /* Switch to bottom-based positioning for better grounding */
+    bottom: 15%; 
     left: 50%;
-    transform: translate(-50%, -50%);
-    width: 350px; 
-    height: 350px;
+    transform: translateX(-50%); /* Only centering horizontally now */
+    width: 380px; /* Slightly wider for better presence */
+    height: auto;
     z-index: 10;
-    /* This adds a little extra buffer from the top HUD */
-    margin-top: 20px; 
 }
 
-
-    #bowl-img {
-        width: 100%; 
-        height: auto;
-        z-index: 1;
-    }
+#bowl-img {
+    width: 100%; 
+    height: auto;
+    display: block;
+}
 
     #ladle-img {
     position: absolute;
-    width: 130px; 
-    height: auto;
+    width: 140px; 
     z-index: 20;
     pointer-events: none;
-    /* Changed from 30% to 50% so it starts inside the bowl area */
-    top: 50%; 
+    /* Position relative to the new bowl height */
+    top: 20%; 
     left: 50%;
-    transform: translate(-50%, -50%);
-    transform-origin: center;
+    transform: translateX(-50%);
 }
+
 
 
     #azul-hud {
