@@ -1,4 +1,4 @@
-const CACHE_NAME = 'harira-quest-v5.5'; 
+const CACHE_NAME = 'harira-quest-v5.6'; 
 const ASSETS_TO_CACHE = [
   '/',
   'index.html',
@@ -31,6 +31,7 @@ const ASSETS_TO_CACHE = [
   'mission-victory.mp4',
   'insecticide.mp4',
   'needs-flavor.mp4',
+  'quantum-demand.mp4',
   
   // Audio
   'arcade-games-neon-munch.mp3',
