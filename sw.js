@@ -1,4 +1,4 @@
-const CACHE_NAME = 'harira-quest-v5.3'; 
+const CACHE_NAME = 'harira-quest-v5.4'; 
 const ASSETS_TO_CACHE = [
   '/',
   'index.html',
@@ -38,7 +38,7 @@ const ASSETS_TO_CACHE = [
 ];
 
 self.addEventListener('install', event => {
-  self.skipWaiting(); // Force activation
+  self.skipWaiting(); 
   event.waitUntil(
     caches.open(CACHE_NAME).then(async (cache) => {
       let loaded = 0;
@@ -46,21 +46,25 @@ self.addEventListener('install', event => {
 
       for (const url of ASSETS_TO_CACHE) {
         try {
-          await cache.add(url);
+          // Use fetch with a 'no-cache' mode to ensure we get fresh files
+          const response = await fetch(url, { cache: 'no-cache' });
+          if (!response.ok) throw new Error(`Offline sync failed for: ${url}`);
+          await cache.put(url, response);
+          
           loaded++;
           
-          // Report progress to all open windows
+          // Report progress to index.html
           const allClients = await self.clients.matchAll({ includeUncontrolled: true });
           allClients.forEach(client => {
             client.postMessage({
               type: 'PROGRESS',
               loaded: loaded,
               total: total,
-              file: url.split('/').pop() // Just show the filename for style
+              file: url
             });
           });
         } catch (err) {
-          console.error('Failed to cache:', url);
+          console.warn('Azul Warning: Resource skipped ->', url);
         }
       }
 
@@ -76,7 +80,7 @@ self.addEventListener('activate', event => {
       keys.map(key => key !== CACHE_NAME && caches.delete(key))
     ))
   );
-  return self.clients.claim(); // Take control of the page immediately
+  return self.clients.claim();
 });
 
 self.addEventListener('fetch', event => {
