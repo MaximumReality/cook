@@ -66,10 +66,11 @@
 </div>
 
 <div id="video-overlay">
-    <video id="transition-video" playsinline>
+    <video id="transition-video" playsinline muted>
         <source src="insecticide.mp4" type="video/mp4">
     </video>
 </div>
+
 
 <canvas id="gameCanvas"></canvas>
 
@@ -170,18 +171,39 @@ function checkWin() {
         recipe.garlic.count >= recipe.garlic.target) {
         
         gameActive = false;
-        
-        // Pause music and play the insecticide video
         music.pause();
+        
         videoOverlay.style.display = 'flex';
-        transitionVideo.play();
 
-        // When video ends, go to stage 2
+        // THE SECRET SAUCE FOR IPHONE:
+        // We unmute it right as we call play. 
+        // Because the user was just touching the screen to catch ingredients, 
+        // the browser "trusts" this play command.
+        transitionVideo.muted = false; 
+        
+        const playPromise = transitionVideo.play();
+
+        if (playPromise !== undefined) {
+            playPromise.catch(error => {
+                console.log("Auto-play prevented, adding emergency play button");
+                // If it still fails, we force a "Tap to Continue" button
+                const btn = document.createElement("button");
+                btn.innerText = "NEXT: CLEAN KITCHEN";
+                btn.style.cssText = "position:fixed; z-index:10001; top:50%; left:50%; transform:translate(-50%,-50%); padding:20px; background:#FF00FF; color:#fff; border:none; border-radius:10px;";
+                btn.onclick = () => {
+                    transitionVideo.play();
+                    btn.remove();
+                };
+                document.body.appendChild(btn);
+            });
+        }
+
         transitionVideo.onended = () => {
             window.location.href = 'stage2.html';
         };
     }
 }
+
 
 function loop() {
     if (!gameActive) return;
