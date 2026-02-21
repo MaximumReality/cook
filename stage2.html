@@ -27,7 +27,6 @@
         background: rgba(0, 0, 0, 0.6); z-index: 0;
     }
 
-    /* BLOCKER: Forces user into Landscape for gameplay */
     #landscape-blocker {
         display: none; position: fixed; inset: 0;
         background: #000; z-index: 9999; flex-direction: column;
@@ -43,10 +42,9 @@
         justify-content: center; align-items: center;
     }
 
-    /* THE PIVOT: This makes a portrait video look right while holding phone sideways */
+    /* THE PIVOT */
     .rotate-video {
         width: 100vh; height: 100vw;
-        transform: rotate(0deg); /* Change to 90deg if it appears sideways */
         object-fit: cover;
     }
 
@@ -58,7 +56,6 @@
     .glitch-cat { width: 110px; margin-bottom: 15px; filter: drop-shadow(0 0 10px var(--neon-pink)); }
     .neon-text { color: var(--neon-pink); font-size: 1.2rem; letter-spacing: 1px; margin-bottom: 10px; }
     
-    /* UI ELEMENTS */
     #ui-text { position: absolute; top: 85px; left: 20px; z-index: 100; pointer-events: none; font-family: 'Courier New', monospace; }
     .stat { color: var(--neon-blue); font-size: 20px; font-weight: bold; text-shadow: 2px 2px #000; }
     #game-container { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 320px; z-index: 10; }
@@ -77,7 +74,7 @@
 </div>
 
 <div id="video-overlay">
-    <video id="transition-video" class="rotate-video" playsinline>
+    <video id="transition-video" class="rotate-video" playsinline muted>
         <source src="needs-flavor.mp4" type="video/mp4">
     </video>
 </div>
@@ -103,6 +100,7 @@
     const densityVal = document.getElementById('density-val');
     const videoOverlay = document.getElementById('video-overlay');
     const transitionVideo = document.getElementById('transition-video');
+    const azulMsg = document.getElementById('azul-msg');
 
     let totalRotation = 0;
     let lastAngle = null;
@@ -145,13 +143,26 @@
     }, { passive: false });
 
     function triggerCinematic() {
+        if (isDone) return;
         isDone = true;
         music.pause();
+        azulMsg.innerText = "TASTE TEST...";
         if(navigator.vibrate) navigator.vibrate(200);
 
-        // Show Video
+        // Show Video Overlay
         videoOverlay.style.display = 'flex';
-        transitionVideo.play();
+        
+        // The iPhone Handshake
+        transitionVideo.muted = false;
+        const playPromise = transitionVideo.play();
+
+        if (playPromise !== undefined) {
+            playPromise.catch(error => {
+                // Emergency bypass if Safari blocks it
+                videoOverlay.onclick = () => { transitionVideo.play(); };
+                azulMsg.innerText = "TAP TO TASTE";
+            });
+        }
 
         transitionVideo.onended = () => {
             window.location.href = 'stage3.html';
