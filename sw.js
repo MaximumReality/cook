@@ -1,4 +1,4 @@
-const CACHE_NAME = 'harira-quest-v5.2'; 
+const CACHE_NAME = 'harira-quest-v5.3'; 
 const ASSETS_TO_CACHE = [
   '/',
   'index.html',
