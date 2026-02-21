@@ -30,6 +30,7 @@ const ASSETS_TO_CACHE = [
   // Video
   'mission-victory.mp4',
   'insecticide.mp4',
+  'needs-flavor.mp4',
   
   // Audio
   'arcade-games-neon-munch.mp3',
