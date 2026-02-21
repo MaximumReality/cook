@@ -1,4 +1,4 @@
-const CACHE_NAME = 'harira-quest-v5.1'; 
+const CACHE_NAME = 'harira-quest-v5.2'; 
 const ASSETS_TO_CACHE = [
   '/',
   'index.html',
@@ -37,43 +37,50 @@ const ASSETS_TO_CACHE = [
   'that-8-bit-music.mp3'
 ];
 
-// INSTALL: Cache everything and then notify the UI
 self.addEventListener('install', event => {
+  self.skipWaiting(); // Force activation
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      console.log('Azul is encrypting the pantry...');
-      return cache.addAll(ASSETS_TO_CACHE).then(() => {
-        // This is the magic part that hides your loading screen!
-        return self.clients.matchAll().then(clients => {
-          clients.forEach(client => {
-            client.postMessage({ type: 'CACHE_COMPLETE' });
+    caches.open(CACHE_NAME).then(async (cache) => {
+      let loaded = 0;
+      const total = ASSETS_TO_CACHE.length;
+
+      for (const url of ASSETS_TO_CACHE) {
+        try {
+          await cache.add(url);
+          loaded++;
+          
+          // Report progress to all open windows
+          const allClients = await self.clients.matchAll({ includeUncontrolled: true });
+          allClients.forEach(client => {
+            client.postMessage({
+              type: 'PROGRESS',
+              loaded: loaded,
+              total: total,
+              file: url.split('/').pop() // Just show the filename for style
+            });
           });
-        });
-      });
+        } catch (err) {
+          console.error('Failed to cache:', url);
+        }
+      }
+
+      const finalClients = await self.clients.matchAll({ includeUncontrolled: true });
+      finalClients.forEach(client => client.postMessage({ type: 'CACHE_COMPLETE' }));
     })
   );
-  self.skipWaiting();
 });
 
-// ACTIVATE: Standard cleanup
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys => Promise.all(
       keys.map(key => key !== CACHE_NAME && caches.delete(key))
     ))
   );
-  return self.clients.claim();
+  return self.clients.claim(); // Take control of the page immediately
 });
 
-// FETCH: Standard logic with your 404 fallback
 self.addEventListener('fetch', event => {
-  if (event.request.mode === 'navigate') {
-    event.respondWith(
-      fetch(event.request).catch(() => caches.match(event.request) || caches.match('404.html'))
-    );
-  } else {
-    event.respondWith(
-      caches.match(event.request).then(res => res || fetch(event.request))
-    );
-  }
+  event.respondWith(
+    caches.match(event.request).then(res => res || fetch(event.request))
+  );
 });
