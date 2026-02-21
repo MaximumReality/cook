@@ -27,7 +27,7 @@
         }
 
         #ui { 
-            position: absolute; top: 100px; /* Lowered for Dynamic Island */
+            position: absolute; top: 100px; 
             left: 20px; 
             color: var(--neon-cyan); font-size: 18px; z-index: 100; 
             text-shadow: 2px 2px #000; pointer-events: none;
@@ -35,6 +35,22 @@
         }
         .checklist { color: var(--neon-green); margin-top: 5px; }
         canvas { position: absolute; inset: 0; z-index: 10; }
+
+        /* CINEMATIC OVERLAY STYLES */
+        #video-overlay {
+            display: none; 
+            position: fixed; 
+            inset: 0; 
+            background: #000; 
+            z-index: 9999; 
+            justify-content: center; 
+            align-items: center;
+        }
+        #transition-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Ensures it fills the iPhone screen */
+        }
     </style>
 </head>
 <body>
@@ -49,11 +65,20 @@
     </div>
 </div>
 
+<div id="video-overlay">
+    <video id="transition-video" playsinline>
+        <source src="insecticide.mp4" type="video/mp4">
+    </video>
+</div>
+
 <canvas id="gameCanvas"></canvas>
 
 <script>
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
+const videoOverlay = document.getElementById('video-overlay');
+const transitionVideo = document.getElementById('transition-video');
+
 const music = new Audio('that-8-bit-music.mp3'); 
 music.loop = true;
 
@@ -110,11 +135,11 @@ class Ingredient {
     }
     update() { 
         this.y += this.speed;
-        if (this.type === 'pest') this.x += Math.sin(this.y / 25) * 3; // Creepy scuttle
+        if (this.type === 'pest') this.x += Math.sin(this.y / 25) * 3; 
     }
     draw() {
         if (this.type === 'pest') {
-            ctx.font = "75px serif"; // GIANT ROACH
+            ctx.font = "75px serif"; 
             ctx.shadowBlur = 15;
             ctx.shadowColor = "#39FF14";
             ctx.fillText("🪳", this.x - 35, this.y);
@@ -138,12 +163,23 @@ function updateUI() {
     `;
 }
 
+// MODIFIED: WIN CONDITION TRIGGERS CINEMATIC
 function checkWin() {
     if (recipe.chickpea.count >= recipe.chickpea.target &&
         recipe.lentil.count >= recipe.lentil.target &&
         recipe.garlic.count >= recipe.garlic.target) {
+        
         gameActive = false;
-        setTimeout(() => { window.location.href = 'stage2.html'; }, 500);
+        
+        // Pause music and play the insecticide video
+        music.pause();
+        videoOverlay.style.display = 'flex';
+        transitionVideo.play();
+
+        // When video ends, go to stage 2
+        transitionVideo.onended = () => {
+            window.location.href = 'stage2.html';
+        };
     }
 }
 
@@ -161,7 +197,6 @@ function loop() {
         item.update();
         item.draw();
         
-        // TIGHT COLLISION (Catching with the bowl area)
         if (item.y > canvas.height - chefHeight - 20 && item.y < canvas.height - chefHeight + 80 &&
             item.x > chefX - 55 && item.x < chefX + 55) {
             
