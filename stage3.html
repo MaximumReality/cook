@@ -3,16 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <link rel="manifest" href="manifest.json">
-
-<meta name="apple-mobile-web-app-capable" content="yes">
-
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
-<meta name="apple-mobile-web-app-title" content="Harira Quest">
-
-<link rel="apple-touch-icon" href="mochkil-harira.PNG">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Harira Quest">
+    <link rel="apple-touch-icon" href="mochkil-harira.PNG">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 
     <title>The Spice | Snack Attack</title>
     <style>
@@ -31,110 +26,62 @@
             background: rgba(0, 0, 0, 0.6); z-index: 1;
         }
 
+        /* CINEMATIC OVERLAY */
+        #video-overlay {
+            display: none; position: fixed; inset: 0;
+            background: #000; z-index: 10000;
+            justify-content: center; align-items: center;
+        }
+        #transition-video { width: 100%; height: 100%; object-fit: cover; }
+
         #ui { 
             position: absolute; top: 85px; left: 20px; 
             color: var(--neon-cyan); z-index: 100; text-shadow: 2px 2px #000;
         }
         
         #target-bowl {
-            position: absolute;
-            top: 75vh; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 320px; 
-            z-index: 50;
+            position: absolute; top: 75vh; left: 50%;
+            transform: translate(-50%, -50%); width: 320px; z-index: 50;
         }
 
         #garlic-claw {
-            position: absolute;
-            top: 180px; 
-            width: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 10;
-            /* Speed up the swing for more challenge */
+            position: absolute; top: 180px; width: 80px; left: 50%;
+            transform: translateX(-50%); z-index: 10;
             animation: moveHorizontal 1.8s ease-in-out infinite alternate;
         }
 
-        @keyframes moveHorizontal {
-            from { left: 20%; }
-            to { left: 80%; }
-        }
+        @keyframes moveHorizontal { from { left: 20%; } to { left: 80%; } }
 
         .dropping {
             animation: none !important;
             transition: top 0.4s ease-in, opacity 0.2s ease-in 0.2s;
-            top: 70vh !important; 
-            opacity: 0;
+            top: 70vh !important; opacity: 0;
         }
 
-        /* The Ripple Overlay */
-               /* THE RIPPLE OVERLAY - HIGH VOLTAGE VERSION */
-.ripple {
-    position: absolute;
-    top: 75vh; 
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 40px; 
-    height: 20px;
-    /* Thicker border for heavy visibility */
-    border: 10px solid var(--neon-cyan); 
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 60; 
-    /* Triple-layer neon glow for maximum visibility */
-    box-shadow: 
-        0 0 20px var(--neon-cyan), 
-        0 0 40px var(--neon-cyan), 
-        inset 0 0 15px var(--neon-cyan);
-    /* Faster start, smoother finish */
-    animation: ripple-out 0.8s cubic-bezier(0.15, 0.85, 0.45, 1) forwards;
-}
+        .ripple {
+            position: absolute; top: 75vh; left: 50%;
+            transform: translate(-50%, -50%); width: 40px; height: 20px;
+            border: 10px solid var(--neon-cyan); border-radius: 50%;
+            pointer-events: none; z-index: 60; 
+            box-shadow: 0 0 20px var(--neon-cyan), 0 0 40px var(--neon-cyan), inset 0 0 15px var(--neon-cyan);
+            animation: ripple-out 0.8s cubic-bezier(0.15, 0.85, 0.45, 1) forwards;
+        }
 
-@keyframes ripple-out {
-    0% { 
-        width: 40px; 
-        height: 20px; 
-        opacity: 1; 
-        border-width: 10px;
-    }
-    40% {
-        opacity: 0.9;
-        border-width: 6px;
-    }
-    100% { 
-        width: 450px; 
-        height: 180px; 
-        opacity: 0; 
-        border-width: 1px;
-    }
-}
+        @keyframes ripple-out {
+            0% { width: 40px; height: 20px; opacity: 1; border-width: 10px; }
+            100% { width: 450px; height: 180px; opacity: 0; border-width: 1px; }
+        }
 
-
-
-        /* MISS Indicator */
         .miss-text {
-            position: absolute;
-            top: 60vh; left: 50%;
-            transform: translate(-50%, -50%);
-            color: var(--neon-red);
-            font-size: 3rem;
-            font-weight: bold;
-            text-shadow: 0 0 15px var(--neon-red);
-            z-index: 200;
-            animation: float-up 0.8s ease-out forwards;
+            position: absolute; top: 60vh; left: 50%;
+            transform: translate(-50%, -50%); color: var(--neon-red);
+            font-size: 3rem; font-weight: bold; text-shadow: 0 0 15px var(--neon-red);
+            z-index: 200; animation: float-up 0.8s ease-out forwards;
         }
 
         @keyframes float-up {
             0% { transform: translate(-50%, 0); opacity: 1; }
             100% { transform: translate(-50%, -100px); opacity: 0; }
-        }
-
-        #next-btn {
-            display: none; position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%); padding: 20px 40px;
-            background: var(--neon-green); border: none; color: black;
-            font-weight: bold; border-radius: 50px; z-index: 500;
-            box-shadow: 0 0 20px var(--neon-green);
         }
     </style>
 </head>
@@ -142,10 +89,14 @@
 
 <div id="ui">MISSION: CALIBRATE FLAVOR<br>Garlic Claws: <span id="score">0</span>/3</div>
 
+<div id="video-overlay">
+    <video id="transition-video" playsinline muted>
+        <source src="quantum-demand.mp4" type="video/mp4">
+    </video>
+</div>
+
 <img src="garlic.png" id="garlic-claw">
 <img src="bowl-with-soup.png" id="target-bowl">
-
-<button id="next-btn" onclick="window.location.href='stage4.html'">SERVE MEAL</button>
 
 <script>
     const music = new Audio('funny-arcade-game.mp3'); 
@@ -157,9 +108,12 @@
     window.addEventListener('touchstart', startMusic);
 
     let caught = 0;
+    let gameActive = true;
     const claw = document.getElementById('garlic-claw');
     const bowl = document.getElementById('target-bowl');
     const scoreText = document.getElementById('score');
+    const videoOverlay = document.getElementById('video-overlay');
+    const transitionVideo = document.getElementById('transition-video');
 
     function createRipple() {
         const ripple = document.createElement('div');
@@ -178,7 +132,7 @@
     }
 
     function dropGarlic() {
-        if (claw.classList.contains('dropping')) return;
+        if (!gameActive || claw.classList.contains('dropping')) return;
 
         const currentLeft = window.getComputedStyle(claw).left;
         claw.style.left = currentLeft;
@@ -189,10 +143,8 @@
 
         setTimeout(() => {
             const finalLeft = clawRect.left + (clawRect.width / 2);
-            
-            // TIGHTER CHECK: Reduced the tolerance so you have to hit the middle 50% of the bowl
             const bowlCenter = bowlRect.left + (bowlRect.width / 2);
-            const tolerance = bowlRect.width * 0.25; // Narrower hit window
+            const tolerance = bowlRect.width * 0.25;
 
             if (finalLeft > bowlCenter - tolerance && finalLeft < bowlCenter + tolerance) {
                 caught++;
@@ -200,15 +152,13 @@
                 createRipple(); 
                 if (navigator.vibrate) navigator.vibrate([15, 10, 15]);
             } else {
-                // Penalty: Lose a point if you miss!
                 caught = Math.max(0, caught - 1);
                 scoreText.innerText = caught;
                 showMiss();
             }
 
             if (caught >= 3) {
-                claw.style.display = 'none';
-                setTimeout(() => { window.location.href = 'stage4.html'; }, 1200);
+                triggerCinematic();
             } else {
                 setTimeout(() => {
                     claw.style.transition = "none";
@@ -220,6 +170,29 @@
                 }, 300);
             }
         }, 400); 
+    }
+
+    function triggerCinematic() {
+        gameActive = false;
+        music.pause();
+        claw.style.display = 'none';
+        
+        videoOverlay.style.display = 'flex';
+        
+        // The iPhone Handshake logic
+        transitionVideo.muted = false;
+        const playPromise = transitionVideo.play();
+
+        if (playPromise !== undefined) {
+            playPromise.catch(error => {
+                // Manual fallback if Safari is being a "horse" 🐴
+                videoOverlay.onclick = () => { transitionVideo.play(); };
+            });
+        }
+
+        transitionVideo.onended = () => {
+            window.location.href = 'stage4.html';
+        };
     }
 </script>
 </body>
